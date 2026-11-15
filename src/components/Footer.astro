@@ -1,0 +1,53 @@
+---
+/* Shared footer. Contact details and service times come from SITE in src/data/site.js;
+   the year is the build year (the site rebuilds automatically). */
+import { SITE } from "../data/site.js";
+import SocialLinks from "./SocialLinks.astro";
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src={SITE.logo} alt={SITE.name}>
+        <p>MERCY SEAT CHAPEL is a mission of The Redeemed Christian Church of God (RCCG). We are bible-believing, multi-racial, loving and family oriented followers of Jesus Christ.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="about.html">About</a></li>
+          <li><a href="ministries.html">Ministries</a></li>
+          <li><a href="departments.html">Departments</a></li>
+          <li><a href="sermons.html">Latest Messages</a></li>
+          <li><a href="live.html">Livestream</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="job-center.html">MSC Job Center</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Service Times</h4>
+        <ul class="footer-times">{SITE.times.map((t) => <li><span>{t.label}</span><b>{t.time}</b></li>)}</ul>
+        <div class="footer-cta">
+          <a class="link-arrow" href="plan-a-visit.html">Plan a visit <i data-lucide="arrow-right"></i></a>
+          <a class="link-arrow" href="plan-a-visit.html#ride">Need a Ride? <i data-lucide="arrow-right"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul class="footer-contact">
+          <li><i data-lucide="map-pin"></i><a href={SITE.mapsUrl} target="_blank" rel="noopener">{SITE.address}</a></li>
+          <li><i data-lucide="phone"></i><a href={SITE.phoneHref}>{SITE.phone}</a></li>
+          <li><i data-lucide="mail"></i><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+        </ul>
+        <div class="footer-socials"><SocialLinks /></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Copyright © {year} Mercy Seat Chapel. All rights reserved.</span>
+      <a class="footer-parish" href="rccg.html"><img src="assets/images/rccg-logo-white.png" alt="" width="32" height="32">A parish of RCCG</a>
+      <nav aria-label="Legal"><a href="privacy.html">Privacy Policy</a><a href="cookies.html">Cookie Policy</a><a href="terms.html">Terms of Use</a></nav>
+    </div>
+  </div>
+  <div class="footer-marquee" aria-hidden="true"><div class="footer-marquee__track">{[1, 2, 3, 4].map(() => <span>{SITE.name}</span>)}</div></div>
+</footer>
+<button class="to-top" type="button" aria-label="Back to top"><i data-lucide="arrow-up"></i></button>

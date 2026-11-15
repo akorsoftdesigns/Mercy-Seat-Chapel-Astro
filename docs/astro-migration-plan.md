@@ -7,8 +7,9 @@ Status: **approved 2026-11-15.** The Astro version is an independent duplicate: 
 | Phase | Status |
 |---|---|
 | 1. Set-up | **Done 2026-11-15.** Own folder and repository (copied from the live site's history, then separated; the live-site workflow removed so this copy can never upload to SiteGround). Astro 7.4.12 (pinned); pages, `assets/`, `admin/`, `robots.txt`, `sitemap.xml` moved into `public/` (same addresses); `npm run build` copies all 30 pages and 201 files into `dist/`. `scripts/cms-build.mjs` now writes into `public/`. Astro's anonymous usage data is switched off on this computer. Local preview: `npm run dev` (port 4321) or `npm run preview` for the built site (port 4322). |
-| 2. Shared layout + proof page | Next |
-| 3–8 | Not started |
+| 2. Shared layout + proof page | **Done 2026-11-15.** `src/data/site.js` (SITE + NAV), `src/layouts/BaseLayout.astro` (head, header, footer, scripts), `src/components/` (`Header`, `Footer`, `PageHero`, `SocialLinks`). `privacy.html` converted to `src/pages/privacy.astro`: after the scripts run it is identical to the original (whole page compared), head tags identical, checked at desktop, tablet and phone width. Contact details on the page are now written at build time. Temporary: SITE/NAV also stay in `main.js` for the unconverted pages until Phase 5, so change both. |
+| 3. Static pages | Next |
+| 4–8 | Not started |
 
 Decision 2 below (sitemap add-on) is taken as recommended unless you say otherwise. Decisions 3 and 4 no longer apply: the live site is independent, so no edit freeze, and its GitHub Pages setting is not touched.
 

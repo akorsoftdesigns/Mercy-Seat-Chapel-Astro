@@ -1,0 +1,9 @@
+---
+// Social media icon links (footer and anywhere else). Links come from SITE.social.
+import { SITE, BRAND_ICONS, SOCIAL_NAMES } from "../data/site.js";
+interface Props { class?: string }
+const { class: cls = "" } = Astro.props;
+---
+{Object.entries(SITE.social).map(([k, url]) => (
+  <a class={cls || undefined} href={url} target="_blank" rel="noopener" aria-label={`${SITE.name} on ${SOCIAL_NAMES[k] || k}`} set:html={BRAND_ICONS[k]} />
+))}

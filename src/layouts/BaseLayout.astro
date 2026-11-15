@@ -1,0 +1,64 @@
+---
+/* Every page's frame: <head> (title, description, canonical, link previews, fonts,
+   stylesheet, browser-tab icons), the shared header and footer, and the scripts.
+
+   Each page passes:
+     page        its file name, e.g. "privacy.html" (canonical link + menu highlight)
+     title       e.g. "Privacy Policy" (" – Mercy Seat Chapel" is added unless the name is already in it)
+     description one or two sentences for search results and link previews
+     image       link-preview photo, usually the page's banner, e.g. "assets/images/hero-privacy.webp"
+     imageAlt    optional; describes the preview photo (default: "Mercy Seat Chapel")
+     noindex     optional; true keeps the page out of search engines (private pages)
+   Extra tags for the <head> can be added with <Fragment slot="head">…</Fragment>. */
+import { SITE } from "../data/site.js";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props { page: string; title: string; description: string; image: string; imageAlt?: string; noindex?: boolean }
+const { page, title, description, image, imageAlt = SITE.name, noindex = false } = Astro.props;
+
+const fullTitle = title.includes(SITE.name) ? title : `${title} – ${SITE.name}`;
+const canonical = `${SITE.website}/${page === "index.html" ? "" : page}`;
+const imageUrl = `${SITE.website}/${image}`;
+---
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{fullTitle}</title>
+  <meta name="description" content={description}>
+  {noindex && <meta name="robots" content="noindex, nofollow, noarchive">}
+  <link rel="canonical" href={canonical}>
+  <!-- Link previews (WhatsApp, Facebook, X, etc.) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content={SITE.name}>
+  <meta property="og:title" content={fullTitle}>
+  <meta property="og:description" content={description}>
+  <meta property="og:url" content={canonical}>
+  <meta property="og:image" content={imageUrl}>
+  <meta property="og:image:alt" content={imageAlt}>
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <!-- Browser-tab icon: blue on light themes, white on dark themes (favicon.svg switches automatically) -->
+  <link rel="icon" href="assets/images/msc-favicon.png" type="image/png" media="(prefers-color-scheme: light)">
+  <link rel="icon" href="assets/images/logo-ms-mark.png" type="image/png" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
+  <slot name="head" />
+</head>
+<body>
+  <Header page={page} />
+
+  <main id="main">
+    <slot />
+  </main>
+
+  <Footer />
+  <script is:inline src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <script is:inline src="assets/js/main.js"></script>
+</body>
+</html>

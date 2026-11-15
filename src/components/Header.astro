@@ -1,0 +1,67 @@
+---
+/* Shared header: floating menu bar, phone menu and search panel.
+   Menu items come from NAV in src/data/site.js. The behaviour (dropdowns, phone menu,
+   search) is in public/assets/js/main.js (initHeader, initSearch). */
+import { SITE, NAV } from "../data/site.js";
+interface Props { page: string } // this page's file name, e.g. "privacy.html"
+const { page } = Astro.props;
+const isCurrent = (href: string) => !href.includes("#") && href.toLowerCase() === page;
+const isActive = (item: any) => item.children?.some((c: any) => isCurrent(c.href)) || (item.pages || []).includes(page);
+---
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header" id="site-header">
+  <div class="nav-shell">
+    <a class="brand" href="index.html" aria-label={`${SITE.name} home`}><img src={SITE.logo} alt={SITE.name} width="141" height="27"></a>
+    <nav class="primary-nav" aria-label="Primary"><ul>
+      {NAV.map((item, i) => !item.children ? (
+        <li class="nav-item"><a class="nav-link" href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>{item.label}</a></li>
+      ) : (
+        <li class="nav-item">
+          {item.href === "#"
+            ? <button class="nav-link" type="button" aria-haspopup="true" aria-expanded="false" aria-controls={`dd-${i}`} aria-current={isActive(item) ? "page" : undefined}>{item.label}<i data-lucide="chevron-down"></i></button>
+            : <a class="nav-link" href={item.href} aria-current={isActive(item) ? "page" : undefined}>{item.label}<i data-lucide="chevron-down"></i></a>}
+          <ul class="dropdown" id={`dd-${i}`}>
+            {item.children.map((c) => <li><a href={c.href} aria-current={isCurrent(c.href) ? "page" : undefined}>{c.label}</a></li>)}
+          </ul>
+        </li>
+      ))}
+      <li><button class="nav-search" type="button" aria-label="Search the site" aria-controls="site-search" aria-expanded="false"><i data-lucide="search"></i></button></li>
+    </ul></nav>
+    <div class="nav-actions">
+      <a class="btn btn--outline-light nav-cta nav-give" href="give.html">Give</a>
+      <a class="btn btn--primary nav-cta nav-visit" href="plan-a-visit.html">Plan Your Visit</a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><i data-lucide="menu"></i><span>Menu</span></button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Site menu">
+  <div class="mobile-menu__top">
+    <img src={SITE.logo} alt={SITE.name}>
+    <button class="mobile-close" type="button" aria-label="Close menu"><i data-lucide="x"></i></button>
+  </div>
+  <nav aria-label="Mobile">
+    {NAV.map((item) => !item.children ? (
+      <div class="m-group"><a href={item.href}>{item.label}</a></div>
+    ) : (
+      <div class="m-group"><button type="button" aria-expanded="false">{item.label}<i data-lucide="plus"></i></button>
+        <div class="m-sub"><div>{item.children.map((c) => <a href={c.href}>{c.label}</a>)}</div></div></div>
+    ))}
+    <div class="m-group"><button class="m-search" type="button" aria-controls="site-search" aria-expanded="false">Search<i data-lucide="search"></i></button></div>
+  </nav>
+  <div class="mobile-menu__cta">
+    <a class="btn btn--primary" href="plan-a-visit.html">Plan Your Visit</a>
+    <a class="btn btn--outline-light" href="give.html">Give an Offering</a>
+  </div>
+  <div class="mobile-menu__meta">{SITE.address}<br><a href={SITE.phoneHref} style="color:inherit">{SITE.phone}</a></div>
+</div>
+<div class="search-panel" id="site-search" role="dialog" aria-modal="true" aria-label="Search the site">
+  <div class="search-panel__box">
+    <form class="search-panel__form" role="search">
+      <i data-lucide="search"></i>
+      <input id="site-search-input" type="search" placeholder="Search the site" aria-label="Search the site" autocomplete="off">
+      <button class="search-panel__close" type="button" aria-label="Close search"><i data-lucide="x"></i></button>
+    </form>
+    <p class="search-panel__status" aria-live="polite"></p>
+    <ul class="search-panel__results"></ul>
+  </div>
+</div>
