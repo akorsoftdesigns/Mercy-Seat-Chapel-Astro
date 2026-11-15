@@ -24,7 +24,7 @@ What must **not** change for visitors: the look, every page address (`about.html
 
 ## Ground rules
 
-1. **Independent duplicate.** All work happens in the separate folder `Mercy Seat Chapel Astro`, its own Git repository (to be published to GitHub as e.g. `MSC-Website-Astro`) with its own preview link on GitHub Pages. The live site's folder, repository and SiteGround upload keep running exactly as now.
+1. **Independent duplicate.** All work happens in the separate folder `Mercy Seat Chapel Astro`, its own Git repository (GitHub: `akorsoftdesigns/Mercy-Seat-Chapel-Astro`, public, published 2026-11-15) with its own preview link on GitHub Pages. The live site's folder, repository and SiteGround upload keep running exactly as now.
 2. **Same addresses.** Astro is set to output `about.html` style files (`build.format: "file"`). Every current page keeps its file name.
 3. **Same design.** `style.css`, the design tokens and `design-system.md` carry over unchanged. Visual changes are out of scope.
 4. **Same dashboard.** The Sanity schemas and Studio are untouched. The HTML templates in `studio/shared/render.js` are reused by Astro, so the dashboard's live Preview and the website keep producing identical HTML.
@@ -88,7 +88,7 @@ Batches, each checked before the next:
 - Remove `scripts/cms-build.mjs` and the markers (kept in Git history).
 
 ### 6. Automatic updates and the preview link (1 day)
-Until switchover, this repository's Action only builds and publishes the **preview link** (GitHub Pages of this repository, e.g. `https://akorsoftdesigns.github.io/MSC-Website-Astro/`; Astro's `base` setting handles that sub-folder). It never uploads to SiteGround. At switchover the same Action gains the SiteGround upload:
+Until switchover, this repository's Action only builds and publishes the **preview link** (GitHub Pages of this repository, `https://akorsoftdesigns.github.io/Mercy-Seat-Chapel-Astro/`; Astro's `base` setting handles that sub-folder; the preview carries a "don't index" tag so search engines leave it out). It never uploads to SiteGround. At switchover the same Action gains the SiteGround upload:
 - Same triggers: dashboard publish (webhook), **every 30 minutes** (keeps the slider, next-date badges and YouTube lists current), push to `main`, manual run.
 - Steps: refresh YouTube lists → download dashboard images → `astro build` → upload `dist/` to SiteGround with rsync (only changed files are sent; nothing deleted on the server).
 - Generated pages are **no longer committed back** to GitHub (no more "Website update from the content dashboard" commits to merge around).
