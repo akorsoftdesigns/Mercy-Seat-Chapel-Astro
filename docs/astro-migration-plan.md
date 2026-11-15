@@ -1,16 +1,16 @@
 # Astro migration plan
 
-Status: **approved 2026-11-15. Work happens on the `astro` branch; the live site (`main`) is unchanged.**
+Status: **approved 2026-11-15.** The Astro version is an independent duplicate: its own folder (`Mercy Seat Chapel Astro`), its own Git repository and its own preview link. The live site (folder `Mercy Seat Chapel`, its `main` branch, SiteGround) is not touched.
 
 ## Progress
 
 | Phase | Status |
 |---|---|
-| 1. Set-up | **Done 2026-11-15.** Branch `astro`; Astro 7.4.12 (pinned); pages, `assets/`, `admin/`, `robots.txt`, `sitemap.xml` moved into `public/` (same addresses); `npm run build` copies all 30 pages and 201 files into `dist/`. `scripts/cms-build.mjs` now writes into `public/`. Astro's anonymous usage data is switched off on this computer. Local preview: `npm run dev` (port 4321) or `npm run preview` for the built site (port 4322). |
+| 1. Set-up | **Done 2026-11-15.** Own folder and repository (copied from the live site's history, then separated; the live-site workflow removed so this copy can never upload to SiteGround). Astro 7.4.12 (pinned); pages, `assets/`, `admin/`, `robots.txt`, `sitemap.xml` moved into `public/` (same addresses); `npm run build` copies all 30 pages and 201 files into `dist/`. `scripts/cms-build.mjs` now writes into `public/`. Astro's anonymous usage data is switched off on this computer. Local preview: `npm run dev` (port 4321) or `npm run preview` for the built site (port 4322). |
 | 2. Shared layout + proof page | Next |
 | 3–8 | Not started |
 
-Decisions 2–4 below are taken as recommended (sitemap add-on, hand-edit freeze on `main`, GitHub Pages set to "GitHub Actions" at switchover) unless you say otherwise.
+Decision 2 below (sitemap add-on) is taken as recommended unless you say otherwise. Decisions 3 and 4 no longer apply: the live site is independent, so no edit freeze, and its GitHub Pages setting is not touched.
 
 ## Goal
 
@@ -24,7 +24,7 @@ What must **not** change for visitors: the look, every page address (`about.html
 
 ## Ground rules
 
-1. **Separate branch.** All work happens on a new branch `astro` in this repository. `main` keeps running the live site exactly as now until switchover.
+1. **Independent duplicate.** All work happens in the separate folder `Mercy Seat Chapel Astro`, its own Git repository (to be published to GitHub as e.g. `MSC-Website-Astro`) with its own preview link on GitHub Pages. The live site's folder, repository and SiteGround upload keep running exactly as now.
 2. **Same addresses.** Astro is set to output `about.html` style files (`build.format: "file"`). Every current page keeps its file name.
 3. **Same design.** `style.css`, the design tokens and `design-system.md` carry over unchanged. Visual changes are out of scope.
 4. **Same dashboard.** The Sanity schemas and Studio are untouched. The HTML templates in `studio/shared/render.js` are reused by Astro, so the dashboard's live Preview and the website keep producing identical HTML.
@@ -87,8 +87,8 @@ Batches, each checked before the next:
 - Remove header/footer/`data-site` rendering and the partial `fetch` from `main.js`; switch search to `search.json`.
 - Remove `scripts/cms-build.mjs` and the markers (kept in Git history).
 
-### 6. Automatic updates and staging (1 day)
-New GitHub Action, replacing `cms-publish.yml` at switchover:
+### 6. Automatic updates and the preview link (1 day)
+Until switchover, this repository's Action only builds and publishes the **preview link** (GitHub Pages of this repository, e.g. `https://akorsoftdesigns.github.io/MSC-Website-Astro/`; Astro's `base` setting handles that sub-folder). It never uploads to SiteGround. At switchover the same Action gains the SiteGround upload:
 - Same triggers: dashboard publish (webhook), **every 30 minutes** (keeps the slider, next-date badges and YouTube lists current), push to `main`, manual run.
 - Steps: refresh YouTube lists → download dashboard images → `astro build` → upload `dist/` to SiteGround with rsync (only changed files are sent; nothing deleted on the server).
 - Generated pages are **no longer committed back** to GitHub (no more "Website update from the content dashboard" commits to merge around).
@@ -102,24 +102,25 @@ New GitHub Action, replacing `cms-publish.yml` at switchover:
 - Page weight and Lighthouse score before vs after.
 - Mobile app: every link it opens (`contact.html#prayer`, `first-timer.html`, `privacy.html`, `terms.html`, `give.html`, `marriage-counselling.html`, `leadership.html`, `our-vision-values.html`, `become-a-member.html`) still resolves.
 
-### 8. Switchover
-1. Staging (GitHub Pages) approved by you.
-2. Merge `astro` into `main`. The new Action builds and uploads.
-3. Spot-check the live site.
-4. Update `CLAUDE.md`, `docs/cms/*`, `design-system.md` references and the editing guide.
+### 8. Switchover (only when you decide)
+1. You approve the Astro preview link.
+2. SiteGround secrets are added to this repository; the old repository's Action stops uploading (its workflow is switched off, not deleted).
+3. This repository's Action builds and uploads. Spot-check the live site.
+4. Update `CLAUDE.md`, `docs/cms/*`, `design-system.md` references and the editing guide. The old repository is kept as an archive.
 
 **Rough total: 9–12 working days**, spread over sessions.
 
 ## During the migration
 
 - **Dashboard edits:** carry on as normal. Both versions read the same Sanity content.
-- **Hand edits to page HTML on `main`:** please keep these to a minimum. Any that happen I'll copy across to `astro` before switchover (I'll keep a list).
+- **Hand edits to the live site:** carry on as needed; the live site stays fully independent. Before switchover, changes made there since 2026-11-15 are copied across to this version (Git history of the live repository lists them).
+- **Dashboard (Studio) itself:** deployed only from the live site's folder. This copy reads Sanity and never writes to it.
 - **Mobile app:** no change needed. Addresses stay the same and the app reads Sanity directly. If a page address ever has to change, the app's `src/lib/config.ts` is updated in the same piece of work.
 
 ## How to reverse
 
-- **Before switchover:** delete the `astro` branch. `main` and the live site are untouched.
-- **After switchover:** revert the merge commit on `main`. That brings back the old pages and the old `cms-publish.yml`; the next run uploads the old pages (same file names, so they simply overwrite). Set GitHub Pages back to "Deploy from a branch".
+- **Before switchover:** delete this folder (and its GitHub repository). The live site is untouched.
+- **After switchover:** switch the old repository's workflow back on and run it; it uploads the old pages (same file names, so they simply overwrite). Switch off this repository's SiteGround upload.
 
 ## Editing after the move (non-developers)
 
