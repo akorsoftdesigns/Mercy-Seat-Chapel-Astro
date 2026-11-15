@@ -9,6 +9,11 @@ design-system.md
 # Local preview server and editor settings
 .claude/
 
+# Astro: installed packages and build output (rebuilt by the GitHub Action)
+node_modules/
+dist/
+.astro/
+
 # Windows system files
 Thumbs.db
 desktop.ini

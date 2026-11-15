@@ -26,7 +26,9 @@ import * as R from "../studio/shared/render.js";
 import { todayInChurchTz, TIME_ZONE } from "../studio/shared/schedule.js";
 import { youtubeId } from "../studio/shared/youtube.js";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Astro migration (Phase 1): the pages and assets live in public/ until each page is converted.
+// This script is retired in Phase 5; see docs/astro-migration-plan.md.
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "public");
 const args = process.argv.slice(2);
 const flag = (f) => args.includes(f);
 const opt = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
