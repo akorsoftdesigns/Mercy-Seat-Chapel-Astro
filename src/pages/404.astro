@@ -8,9 +8,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   description="The page you were looking for could not be found."
   hidden
   robots="noindex"
-  baseHref="/"
+  baseHref={import.meta.env.BASE_URL.replace(/\/?$/, "/")}
 >
-  {/* Shown for any missing address (even deep ones like /a/b/c), so baseHref="/" makes every link and file read from the site root */}
+  {/* Shown for any missing address (even deep ones like /a/b/c), so baseHref makes every link and file read from
+      the site's root folder: "/" on the real site, "/Mercy-Seat-Chapel-Astro/" on the preview (astro.config.mjs) */}
 
   <section class="lost">
     <div class="container lost__grid">

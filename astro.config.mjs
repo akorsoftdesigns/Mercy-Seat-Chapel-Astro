@@ -9,6 +9,11 @@ export default defineConfig({
   // Static files only (uploaded to SiteGround); no server needed
   output: "static",
 
+  // Sub-folder the site is served from: "/" on the real site; the GitHub Pages preview
+  // builds with SITE_BASE="/Mercy-Seat-Chapel-Astro/" (.github/workflows/preview.yml).
+  // Pages use relative links, so only the not-found page needs this (its <base>).
+  base: process.env.SITE_BASE || "/",
+
   // Keep today's page addresses: src/pages/about.astro → about.html (not about/index.html).
   // The mobile app links to several of these, so they must not change.
   build: { format: "file" },

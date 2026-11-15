@@ -1,0 +1,68 @@
+# Publishes the Astro version to its preview link (GitHub Pages of this repository):
+#   https://akorsoftdesigns.github.io/Mercy-Seat-Chapel-Astro/
+# It never uploads to SiteGround and never changes the live site.
+#
+# Runs when code is pushed to main, every 30 minutes (keeps the events slider, next-date
+# badges and YouTube lists current), or from GitHub → Actions → "Run workflow".
+# Needs GitHub → Settings → Pages → Source = "GitHub Actions".
+# Every preview page carries "noindex" so search engines leave it out.
+name: Publish preview
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One publish at a time; a newer run replaces a waiting one
+concurrency:
+  group: pages-preview
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ASTRO_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Latest published dashboard content (read-only); if Sanity can't be reached,
+      # the saved content in src/data/cms-snapshot.json is used
+      - name: Fetch dashboard content
+        run: npm run content || echo "Using the saved content"
+
+      - name: Build
+        env:
+          SITE_BASE: /Mercy-Seat-Chapel-Astro/
+          SITE_PREVIEW: "1"
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

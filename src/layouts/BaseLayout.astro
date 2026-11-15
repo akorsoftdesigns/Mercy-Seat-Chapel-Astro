@@ -22,7 +22,9 @@ import Footer from "../components/Footer.astro";
 
 interface Props { page: string; title: string; description: string; image?: string; imageAlt?: string; noindex?: boolean; robots?: string; hidden?: boolean; baseHref?: string }
 const { page, title, description, image = "", imageAlt = SITE.name, noindex = false, hidden = false, baseHref } = Astro.props;
-const robots = Astro.props.robots || (noindex ? "noindex, nofollow, noarchive" : "");
+// The GitHub Pages preview (SITE_PREVIEW=1) is kept out of search engines on every page
+const isPreview = process.env.SITE_PREVIEW === "1";
+const robots = isPreview ? "noindex, nofollow, noarchive" : Astro.props.robots || (noindex ? "noindex, nofollow, noarchive" : "");
 
 const fullTitle = title.includes(SITE.name) ? title : `${title} – ${SITE.name}`;
 const canonical = `${SITE.website}/${page === "index.html" ? "" : page}`;
