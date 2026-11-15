@@ -25,7 +25,13 @@ function astroSafe(html) {
 const STD_HEAD = /charset|name="viewport"|<title>|name="description"|rel="canonical"|Link previews|og:type|og:site_name|og:title|og:description|og:url|og:image"|og:image:alt|twitter:card|preconnect|fonts\.googleapis\.com\/css2|style\.css|Browser-tab icon|rel="icon"|apple-touch-icon|name="robots"/;
 
 for (const name of names) {
-  const src = readFileSync(path.join(root, "public", `${name}.html`), "utf8").replace(/\r\n/g, "\n");
+  let src = readFileSync(path.join(root, "public", `${name}.html`), "utf8").replace(/\r\n/g, "\n");
+  // Dashboard sections (<!-- cms:x --> … <!-- /cms:x -->) and the shared events slider become
+  // <Fragment set:html={regions["x"]} /> (src/lib/cms.js); a token keeps them out of the escaping below
+  const usedRegions = new Set();
+  src = src.replace(/<!-- cms:([\w-]+) -->[\s\S]*?<!-- \/cms:\1 -->/g, (_, r) => { usedRegions.add(r); return `@@REGION:${r}@@`; });
+  src = src.replace(/<div data-include="assets\/partials\/upcoming-events\.html">[\s\S]*?<\/div>/g, () => { usedRegions.add("upcoming-events"); return "@@REGION:upcoming-events@@"; });
+  src = src.replace(/Edit the events in assets\/partials\/upcoming-events\.html/g, "Edit the events in the dashboard (Events, Announcements)");
   const head = src.slice(src.indexOf("<head>") + 6, src.indexOf("</head>"));
   const title = meta(head, /<title>([^<]*)<\/title>/).replace(/ – Mercy Seat Chapel$/, "");
   const description = meta(head, /<meta name="description" content="([^"]*)"/);
@@ -93,6 +99,7 @@ for (const name of names) {
     `/* ${title}. Page text is plain HTML below; the shared head, header and footer come from BaseLayout.${robotsNote ? `\n   ${robotsNote.replace(/this line/, "the robots line below")}` : ""} */`,
     `import BaseLayout from "../layouts/BaseLayout.astro";`,
     hero ? `import PageHero from "../components/PageHero.astro";` : null,
+    usedRegions.size ? `import { regions } from "../lib/cms.js"; // dashboard sections: ${[...usedRegions].join(", ")}` : null,
     `---`,
     `<BaseLayout\n${props}\n>`,
     extras.length ? `  <Fragment slot="head">\n${astroSafe(extras.join("\n"))}\n  </Fragment>\n` : null,
@@ -101,7 +108,7 @@ for (const name of names) {
     extraScripts.length ? `\n  <Fragment slot="scripts">\n${extraScripts.map((s) => `    <script is:inline src=${js(s)}></script>`).join("\n")}\n  </Fragment>` : null,
     `</BaseLayout>`,
     ``
-  ].filter((x) => x !== null).join("\n");
+  ].filter((x) => x !== null).join("\n").replace(/@@REGION:([\w-]+)@@/g, (_, r) => `<Fragment set:html={regions[${JSON.stringify(r)}]} />`);
   mkdirSync(path.join(root, "src/pages"), { recursive: true });
   writeFileSync(path.join(root, "src/pages", `${name}.astro`), out);
   console.log(`${name}: converted${hero ? " (PageHero)" : ""}${extras.length ? `, ${extras.length} head lines` : ""}${extraScripts.length ? `, scripts: ${extraScripts.join(", ")}` : ""}`);

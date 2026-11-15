@@ -1,0 +1,41 @@
+---
+/* Our Vision & Values. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+import { regions } from "../lib/cms.js"; // dashboard sections: about-vision, about-pillars
+---
+<BaseLayout
+  page="our-vision-values.html"
+  title="Our Vision & Values"
+  description="The vision, five foundational values and four growth pillars that guide life at Mercy Seat Chapel."
+  image="assets/images/church-1709.jpg"
+>
+  <PageHero
+    title="Our Vision & Values"
+    image="assets/images/church-1709.jpg"
+    crumbs={[{"label":"Home","href":"index.html"},{"label":"About","href":"about.html"},{"label":"Our Vision & Values"}]}
+  >
+    <p>The vision, values and growth pillars that guide who we are and everything we do.</p>
+  </PageHero>
+
+  <!-- Vision and the five foundational values, then the Growth Pillars:
+       managed in the dashboard (About page); the content between the cms markers is written from there -->
+  <section class="section section--white" id="vision">
+    <div class="container">
+      <Fragment set:html={regions["about-vision"]} />
+    </div>
+  </section>
+
+  <section class="section" id="growth-pillars">
+    <div class="container">
+      <div class="about-block about-block--first">
+        <Fragment set:html={regions["about-pillars"]} />
+      </div>
+      <!-- Next steps: meet the leaders, or go on to membership -->
+      <div class="btn-row btn-row--center reveal" style="margin-top:56px">
+        <a class="btn btn--outline" href="leadership.html">Meet Our Leaders</a>
+        <a class="btn btn--secondary" href="become-a-member.html">Become a Member <i data-lucide="arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

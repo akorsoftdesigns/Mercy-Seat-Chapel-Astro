@@ -1,10 +1,12 @@
 /* Mercy Seat Chapel: site details and main menu, used by the shared layout
    (header, footer, <head>) when the pages are built.
 
-   During the migration the same values also sit at the top of public/assets/js/main.js,
-   because pages not yet converted still draw their header and footer in the browser.
-   Change both until Phase 5 removes the copy in main.js (docs/astro-migration-plan.md).
-   From Phase 4 the SITE_SETTINGS part comes straight from the dashboard (Site Settings). */
+   Contact details, service times and links come from the dashboard (Site Settings),
+   saved by `npm run content`. The values below are only used if that content is missing.
+   scripts/fetch-content.mjs also copies the Site Settings into public/assets/js/main.js
+   for the scripts that run in the browser. NAV (the menu) is still repeated in main.js
+   until Phase 5 (docs/astro-migration-plan.md): change both. */
+import { cmsSite } from "../lib/cms.js";
 
 // Fixed details (not managed in the dashboard)
 export const SITE_FIXED = {
@@ -15,8 +17,8 @@ export const SITE_FIXED = {
   dashboardUrl: "https://crm.mercyseatchapel.org/"
 };
 
-// Contact details, service times and links (edited in the dashboard: Site Settings)
-export const SITE_SETTINGS = {
+// Fallback contact details, service times and links (the live values are edited in the dashboard: Site Settings)
+const FALLBACK_SETTINGS = {
   phone: "(301) 740-8118",
   phoneHref: "tel:+13017408118",
   prayerLine: "1 857 216 6700, code 860476",
@@ -39,6 +41,7 @@ export const SITE_SETTINGS = {
   ]
 };
 
+export const SITE_SETTINGS = cmsSite || FALLBACK_SETTINGS;
 export const SITE = { ...SITE_FIXED, ...SITE_SETTINGS };
 
 /* Main menu.

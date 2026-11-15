@@ -1,0 +1,59 @@
+---
+/* Ministries. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+import { regions } from "../lib/cms.js"; // dashboard sections: ministries
+---
+<BaseLayout
+  page="ministries.html"
+  title="Ministries"
+  description="Find your place at Mercy Seat Chapel: Children & Teenagers, Revive, Pillars of Mercy, FundaMENtals and Empowerment."
+  image="assets/images/revive-2.jpg"
+>
+  <PageHero
+    title="Ministries"
+    image="assets/images/revive-2.jpg"
+    crumbs={[{"label":"Home","href":"index.html"},{"label":"Ministries"}]}
+  >
+    <p>There’s a place for everyone at Mercy Seat Chapel, from children and teenagers to young adults, women, men and new believers.</p>
+  </PageHero>
+
+  <nav class="tabnav" aria-label="Ministries page sections" data-tabnav>
+    <ul class="tabnav__list">
+      <li><a href="#children">Children &amp; Teenagers</a></li>
+      <li><a href="#revive">Revive</a></li>
+      <li><a href="#pillars-of-mercy">Pillars of Mercy</a></li>
+      <li><a href="#fundamentals">FundaMENtals</a></li>
+      <li><a href="#empowerment">Empowerment</a></li>
+    </ul>
+  </nav>
+
+  <section class="section">
+    <div class="container zz zz--top">
+
+      <!-- Ministries are managed in the dashboard (Ministries) -->
+      <Fragment set:html={regions["ministries"]} />
+
+      <!-- Link to the Believer's Foundation Academy, which has its own page -->
+      <div class="cta-band cta-band--inline reveal">
+        <div><h2>The Believer’s Foundation Academy</h2><p>New to the faith or preparing to serve? Our six-week foundation class grounds new converts and potential workers in solid Biblical teaching.</p></div>
+        <div class="btn-row"><a class="btn btn--primary" href="foundation-academy.html">Explore the Academy <i data-lucide="arrow-right"></i></a></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Serve with us</span>
+        <h2>Departments &amp; outreach</h2>
+        <p>Use your gifts to serve God and His people through our departments and the Mercy For Many Foundation.</p>
+      </div>
+      <div class="grid grid--2">
+        <a class="step-tile reveal" href="departments.html" style="min-height:320px"><img src="assets/images/hero-3.jpg" alt="" loading="lazy"><span class="step-tile__tag">Serve</span><h3>Departments</h3><p>Choir, Evangelism, Drama, Multimedia, Information Technology and Marriage Counselling.</p><span class="link-arrow">Explore departments <i data-lucide="arrow-right"></i></span></a>
+        <a class="step-tile reveal" href="outreach.html" style="min-height:320px; --d:.1s"><img src="assets/images/angel-treat.jpg" alt="" loading="lazy"><span class="step-tile__tag">Outreach</span><h3>Mercy For Many Foundation</h3><p>Spreading God’s word and sharing His love with the community and the world at large.</p><span class="link-arrow">Explore outreach <i data-lucide="arrow-right"></i></span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

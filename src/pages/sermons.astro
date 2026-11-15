@@ -1,0 +1,63 @@
+---
+/* Latest Messages. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+import { regions } from "../lib/cms.js"; // dashboard sections: recent-services, sermons-more
+---
+<BaseLayout
+  page="sermons.html"
+  title="Latest Messages"
+  description="Watch the latest sermons, services and messages from Mercy Seat Chapel."
+  image="assets/images/multimedia.jpg"
+>
+  <PageHero
+    title="Latest Messages"
+    image="assets/images/multimedia.jpg"
+    crumbs={[{"label":"Home","href":"index.html"},{"label":"Sermons"},{"label":"Latest Messages"}]}
+  >
+    <p>Sunday may be over, but the Word doesn’t have to stop. Watch recent services, teachings and special programs anytime.</p>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div><span class="eyebrow">Featured</span><h2>Recent services</h2></div>
+        <a class="btn btn--outline" data-site="youtube" href="#" target="_blank" rel="noopener">Subscribe on YouTube <i data-lucide="arrow-up-right"></i></a>
+      </div>
+      <!-- data-youtube-feed="5": the list is replaced with the channel's 5 newest uploads (newest first, pulled live from SITE.youtubeChannelId) and the newest is featured. 5 items fill the player's height exactly (video-list--fit), so there is no scrollbar. The markup below is only the fallback shown if the feed can't be reached. -->
+      <div class="messages reveal" data-playlist data-youtube-feed="5">
+        <div class="video-feature">
+          <div class="yt" data-uploads></div>
+          <div class="video-feature__body"><h3>Latest from our channel</h3><p>Newest service first · updates automatically</p></div>
+        </div>
+        <div class="video-list video-list--fit" aria-label="Recent services">
+          <button class="video-list__item is-active" data-uploads data-title="Latest from our channel" data-meta="Newest service first · updates automatically"><span class="video-list__thumb"><i data-lucide="radio"></i></span><span><strong>Latest from our channel</strong><span>Updates automatically</span></span></button>
+          <Fragment set:html={regions["recent-services"]} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container">
+      <div class="section-head section-head--left reveal">
+        <span class="eyebrow">Teaching series</span>
+        <h2>More messages</h2>
+      </div>
+      <!-- Managed in the dashboard (Sermons marked “Show in More messages”) -->
+      <div class="grid grid--3">
+        <Fragment set:html={regions["sermons-more"]} />
+      </div>
+      <div class="text-center" style="margin-top:40px"><a class="btn btn--secondary" data-site="youtube" href="#" target="_blank" rel="noopener">See all messages on YouTube <i data-lucide="arrow-up-right"></i></a></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="cta-band reveal">
+        <div><h2>Worship with us live</h2><p>Sunday Service at 10:00 AM and Bible Study on Tuesdays at 7:30 PM are streamed live.</p></div>
+        <div class="btn-row"><a class="btn btn--primary" href="live.html"><i data-lucide="radio"></i> Watch Live</a></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,62 @@
+---
+/* Mercy For Many Foundation. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+import { regions } from "../lib/cms.js"; // dashboard sections: outreach-overview, outreach-rows
+---
+<BaseLayout
+  page="outreach.html"
+  title="Mercy For Many Foundation"
+  description="Mercy For Many is the outreach arm of Mercy Seat Chapel: Angel Treat, the Annual Turkey Drive, Nursing Home Visits and support for orphanages."
+  image="assets/images/angel-treat.jpg"
+>
+  <PageHero
+    title="Mercy For Many Foundation"
+    image="assets/images/angel-treat.jpg"
+    crumbs={[{"label":"Home","href":"index.html"},{"label":"Outreach"}]}
+  >
+    <p>Reaching the world for Christ, one family, one child, one senior at a time.</p>
+  </PageHero>
+
+  <nav class="tabnav" aria-label="Outreach page sections" data-tabnav>
+    <ul class="tabnav__list">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#angel-treat">Angel Treat</a></li>
+      <li><a href="#turkey-drive">Annual Turkey Drive</a></li>
+      <li><a href="#nursing-home">Nursing Home Visit</a></li>
+      <li><a href="#orphanage">Orphanage</a></li>
+    </ul>
+  </nav>
+
+  <!-- Overview -->
+  <section class="section" id="overview">
+    <div class="container split split--wide-text">
+      <div class="reveal reveal--left">
+        <span class="eyebrow">Our outreach</span>
+        <h2>Sharing His love with the community and the world</h2>
+        <p class="lead">Mercy For Many is the outreach arm of the church that helps Mercy Seat Chapel spread God’s word and share His love with the community and the world at large.</p>
+        <p>We are reaching the world for Christ through outreaches such as our Annual Turkey Drive and Angel Treat. We also visit Seniors in Assisted Living monthly for fellowship. We also make a difference by sponsoring needs of Orphanages around the world.</p>
+      </div>
+      <!-- "converge": each card drifts in from its own corner (see style.css, Motion) -->
+      <div class="grid grid--2 converge" style="gap:16px">
+        <Fragment set:html={regions["outreach-overview"]} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container zz zz--top">
+      <!-- Outreach programs are managed in the dashboard (Outreach) -->
+      <Fragment set:html={regions["outreach-rows"]} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="cta-band cta-band--inline reveal">
+        <div><h2>Be the hands and feet of Jesus</h2><p>Partner with the Mercy For Many Foundation through your giving, time and prayers.</p></div>
+        <div class="btn-row"><a class="btn btn--primary" href="give.html">Give an Offering</a><a class="btn btn--outline-light" href="contact.html">Get Involved</a></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

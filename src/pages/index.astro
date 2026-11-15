@@ -1,0 +1,289 @@
+---
+/* Mercy Seat Chapel – We come together to obtain Mercy and Grace. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { regions } from "../lib/cms.js"; // dashboard sections: church-schema, hero-slides, hero-kicker, hero-texts, hero-buttons, hero-thumbs, service-times, place-tabs, latest-messages, outreach-cards, upcoming-events
+---
+<BaseLayout
+  page="index.html"
+  title="Mercy Seat Chapel – We come together to obtain Mercy and Grace"
+  description="Mercy Seat Chapel is a mission of The Redeemed Christian Church of God (RCCG) in Gaithersburg, MD. Join us Sundays at 10:00 AM in person or online."
+  image="assets/images/church-1705.jpg"
+>
+  <Fragment slot="head">
+  <!-- Church details for search engines (address, phone, social profiles), written from Site Settings in the dashboard -->
+  <Fragment set:html={regions["church-schema"]} />
+  </Fragment>
+
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" aria-label="Welcome">
+    <div class="hero__slides" aria-hidden="true">
+      <!-- Video slides: background video (muted, looping). data-video-id = YouTube video ID; data-video-start = start point in seconds (slide 1: 8314 = 2:18:34). Each slide plays its video from its start time for 8 seconds (data-duration 8000), then moves on; the slides loop. The background-image photo shows until the video is actually playing. Slide 2 starts at 59:26 (3566); slide 3 starts at 2:16:05 (8165).
+           background-image = each slide's fallback photo, shown while the video loads, when it can't play, or with reduced motion.
+           Hero slides are managed in the dashboard (Homepage → Hero slides); the sections below are built from it. -->
+      <Fragment set:html={regions["hero-slides"]} />
+    </div>
+    <div class="container hero__inner">
+      <div class="hero__grid">
+        <div>
+          <div class="hero__kicker anim" style="--d:.1s">
+            <Fragment set:html={regions["hero-kicker"]} />
+          </div>
+          <!-- One headline + lead per slide, in slide order -->
+          <div class="hero__copy anim" style="--d:.25s">
+            <Fragment set:html={regions["hero-texts"]} />
+          </div>
+          <div class="btn-row anim" style="--d:.55s">
+            <Fragment set:html={regions["hero-buttons"]} />
+          </div>
+        </div>
+        <div class="anim" style="--d:.7s">
+          <div class="hero__thumbs" aria-label="Choose a slide">
+            <Fragment set:html={regions["hero-thumbs"]} />
+          </div>
+          <div class="hero__progress"><span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICE TIMES ============ -->
+  <section class="section section--white" id="service-times">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Come experience MSC</span>
+        <h2>Worship, Grow and Connect</h2>
+        <p>We’re excited to welcome you to attend our in-person Worship Services, or you can join us online.</p>
+      </div>
+      <!-- Two large cards (Sunday, Tuesday), then a button to the full service times on the Events page. -->
+      <!-- Cards managed in the dashboard (Homepage → “Worship, Grow and Connect” cards) -->
+      <div class="times-grid times-grid--feature">
+        <Fragment set:html={regions["service-times"]} />
+      </div>
+      <!-- Full list of service times lives on the Events page ("Service Times", events.html#regular) -->
+      <div class="times-cta reveal">
+        <a class="btn btn--primary" href="events.html#regular">See all service times <i data-lucide="arrow-right"></i></a>
+      </div>
+      <!-- KEPT FOR LATER: the four smaller cards removed from the homepage. To bring one back, add it again in the
+           dashboard (Homepage → “Worship, Grow and Connect” cards); without the dashboard, paste it back next to the
+           service-times section above.
+        <article class="time-card time-card--photo reveal" style="--d:0s">
+          <img src="assets/images/program-communion-hands.jpg" alt="" style="object-position:53% center">
+          <div class="time-card__icon"><i data-lucide="wine"></i></div>
+          <div class="time-card__day">1st Tuesday · Monthly</div>
+          <div class="time-card__time">7:30 PM</div>
+          <h3>Holy Communion</h3>
+          <p>“…and when I see the blood”</p>
+        </article>
+        <article class="time-card time-card--photo reveal" style="--d:.35s">
+          <img src="assets/images/program-praying-hands.jpg" alt="" style="object-position:center 30%">
+          <div class="time-card__icon"><i data-lucide="hand-heart"></i></div>
+          <div class="time-card__day">Every Wednesday</div>
+          <div class="time-card__time">9:00 PM</div>
+          <h3>Strength in Prayer</h3>
+          <p>Midweek prayer on the prayer line</p>
+        </article>
+        <article class="time-card time-card--photo reveal" style="--d:.7s">
+          <img src="assets/images/program-seed.jpg" alt="" style="object-position:70% center">
+          <div class="time-card__icon"><i data-lucide="sprout"></i></div>
+          <div class="time-card__day">2nd Saturday · Monthly</div>
+          <div class="time-card__time">12–1 PM</div>
+          <h3>The Seed &amp; the Future</h3>
+          <p>Praying for our children · virtual</p>
+        </article>
+        <article class="time-card time-card--photo reveal" style="--d:1.05s">
+          <img src="assets/images/church-1716.jpg" alt="">
+          <div class="time-card__icon"><i data-lucide="party-popper"></i></div>
+          <div class="time-card__day">1st Sunday · Monthly</div>
+          <div class="time-card__time">10:00 AM</div>
+          <h3>Thanksgiving Sunday</h3>
+          <p>Giving Thanks together</p>
+        </article>
+      -->
+      <div class="times-foot reveal">
+        <span><i data-lucide="map-pin"></i><a data-site="address" href="#">17604 Washington Grove Lane, Gaithersburg, MD 20877</a></span>
+        <span><i data-lucide="radio"></i><a href="live.html">Join us in person or online</a></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NEW HERE ============ -->
+  <section class="section" id="about">
+    <div class="container split">
+      <div class="reveal reveal--left">
+        <span class="eyebrow">Your first visit starts here</span>
+        <h2>New Here? We’d Love to Meet You!</h2>
+        <p>Visiting a new church should feel exciting, not overwhelming! Whether you’re exploring faith, looking for a church family, or simply visiting for the first time, we’d love to welcome you to Mercy Seat Chapel.</p>
+        <p>Come as you are and experience uplifting worship, genuine fellowship, and a community where you can feel at home. Ready to join us? Plan your visit today, and if you need transportation, we’re here to help you explore available options.</p>
+        <div class="btn-row" style="margin-top:28px">
+          <a class="btn btn--secondary" href="plan-a-visit.html">Plan Your Visit <i data-lucide="arrow-right"></i></a>
+          <a class="btn btn--outline" href="plan-a-visit.html#ride"><i data-lucide="car"></i> Need a Ride?</a>
+        </div>
+      </div>
+      <!-- Floating photos: drift gently with the mouse, zoom on hover. --depth sets how far each one drifts. -->
+      <div class="float-gallery reveal reveal--right" data-float-gallery>
+        <figure class="float-gallery__item" style="--x:2%; --y:20%; --z:6; --depth:.6"><img src="assets/images/hero-2-sm.jpg" alt="A worshipper in prayer during a service" loading="lazy"></figure>
+        <figure class="float-gallery__item" style="--x:25%; --y:2%; --z:3; --depth:1"><img src="assets/images/hero-4.jpg" alt="Members worshipping joyfully together" loading="lazy"></figure>
+        <figure class="float-gallery__item" style="--x:45%; --y:42%; --z:5; --depth:1.4"><img src="assets/images/hero-3-sm.jpg" alt="The choir in red leading worship" loading="lazy"></figure>
+        <figure class="float-gallery__item" style="--x:66%; --y:14%; --z:1; --depth:.8"><img src="assets/images/pastor-message-sm.jpg" alt="The pastor preaching" loading="lazy" style="object-position:center top"></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FIND YOUR PLACE ============ -->
+  <section class="place" aria-labelledby="place-title">
+    <div class="container" data-tabs>
+      <div class="section-head section-head--split reveal">
+        <div>
+          <span class="eyebrow">Inside MSC</span>
+          <h2 id="place-title">Find your place at MSC</h2>
+        </div>
+        <a class="btn btn--outline-light" href="ministries.html">All ministries <i data-lucide="arrow-right"></i></a>
+      </div>
+      <!-- Tabs managed in the dashboard (Homepage → “Find your place” tabs; text from each Ministry's Homepage tab) -->
+      <Fragment set:html={regions["place-tabs"]} />
+    </div>
+  </section>
+
+  <!-- ============ UPCOMING EVENTS ============ -->
+  <section class="section section--soft" id="events">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <span class="eyebrow">Upcoming Events</span>
+          <h2>What’s happening at MSC</h2>
+        </div>
+        <a class="btn btn--outline" href="events.html">View Calendar <i data-lucide="arrow-right"></i></a>
+      </div>
+      <!-- Events slider: shared with events.html. Edit the events in the dashboard (Events, Announcements) -->
+      <Fragment set:html={regions["upcoming-events"]} />
+    </div>
+  </section>
+
+  <!-- ============ LATEST MESSAGES ============ -->
+  <section class="section section--white" id="messages">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <span class="eyebrow">Watch</span>
+          <h2>Latest messages</h2>
+          <p class="muted" style="margin:0">Catch up on recent services and messages from Mercy Seat Chapel.</p>
+        </div>
+        <a class="btn btn--outline" href="sermons.html">All Messages <i data-lucide="arrow-right"></i></a>
+      </div>
+      <!-- data-youtube-feed="6" + data-youtube-source="streams": the list is replaced with the channel's 5 newest live streams (its YouTube "Live" tab, newest first) and the newest is featured. The markup below is only the fallback shown if the feed can't be reached. -->
+      <div class="messages reveal" data-playlist data-youtube-feed="5" data-youtube-source="streams">
+        <Fragment set:html={regions["latest-messages"]} />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OUTREACHES ============ -->
+  <section class="section" id="outreach">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Outreaches</span>
+        <h2>Mercy for Many</h2>
+        <p>The outreach arm of the church that helps Mercy Seat Chapel spread God’s word and share His love with the community and the world at large.</p>
+      </div>
+      <!-- Cards managed in the dashboard (Homepage → “Mercy for Many” cards; text from each Outreach program's Cards tab) -->
+      <div class="grid grid--4">
+        <Fragment set:html={regions["outreach-cards"]} />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NEXT STEPS ============ -->
+  <section class="section section--white">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Take a next step</span>
+        <h2>Grow with us</h2>
+        <p>Whatever your stage or season, there’s a next step for you at Mercy Seat Chapel.</p>
+      </div>
+      <div class="grid grid--3">
+        <a class="step-tile reveal" style="--d:0s" href="give.html">
+          <img src="assets/images/worship-hands.jpg" alt="" loading="lazy">
+          <span class="step-tile__tag">Generosity</span>
+          <h3>Give an Offering</h3>
+          <p>Partner with us as we reach our community and the world for Christ.</p>
+          <span class="link-arrow">Give now <i data-lucide="arrow-right"></i></span>
+        </a>
+        <a class="step-tile reveal" style="--d:.1s" href="testimonies.html">
+          <img src="assets/images/hero-4.jpg" alt="" loading="lazy">
+          <span class="step-tile__tag">Celebrate</span>
+          <h3>Testimonies</h3>
+          <p>Share what God has done in your life and encourage someone today.</p>
+          <span class="link-arrow">Share a testimony <i data-lucide="arrow-right"></i></span>
+        </a>
+        <a class="step-tile reveal" style="--d:.2s" href="contact.html#prayer">
+          <img src="assets/images/church-1706.jpg" alt="" loading="lazy">
+          <span class="step-tile__tag">Prayer</span>
+          <h3>Prayers</h3>
+          <p>Let us stand with you in prayer. Send us your prayer request.</p>
+          <span class="link-arrow">Send a prayer request <i data-lucide="arrow-right"></i></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MOBILE APP ============ -->
+  <!-- Store links come from Site Settings in the dashboard (App Store / Google Play links) -->
+  <section class="app-promo" aria-labelledby="app-title">
+    <div class="container app-promo__grid">
+      <div class="app-promo__text reveal reveal--left">
+        <span class="eyebrow">The MSC App</span>
+        <h2 id="app-title">Take Mercy Seat with you, <em>everywhere</em> you go</h2>
+        <p class="app-promo__lead">Watch services live, catch up on sermons, send a prayer request, give securely and never miss an event, all in one simple app.</p>
+        <ul class="app-promo__features">
+          <li><i data-lucide="radio"></i>Live services</li>
+          <li><i data-lucide="play-circle"></i>Sermons on demand</li>
+          <li><i data-lucide="hand-heart"></i>Prayer requests</li>
+          <li><i data-lucide="heart-handshake"></i>Easy giving</li>
+          <li><i data-lucide="bell"></i>Event updates</li>
+        </ul>
+        <div class="store-buttons">
+          <a class="store-btn" data-site="app-store" href="#" target="_blank" rel="noopener" aria-label="Download the Mercy Seat Chapel app on the App Store">
+            <svg class="store-btn__logo" viewBox="0 0 384 512" aria-hidden="true"><path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+            <span><small>Download on the</small>App Store</span>
+          </a>
+          <a class="store-btn" data-site="play-store" href="#" target="_blank" rel="noopener" aria-label="Get the Mercy Seat Chapel app on Google Play">
+            <svg class="store-btn__logo" viewBox="0 0 512 512" aria-hidden="true"><path fill="#00D7FE" d="M48 32 280 256 48 480c-9-5-16-15-16-28V60c0-13 7-23 16-28z"/><path fill="#00F076" d="M48 32c6-4 15-5 24 0l292 168-84 56z"/><path fill="#FF3A44" d="M48 480 280 256l84 56L72 480c-9 5-18 4-24 0z"/><path fill="#FFD400" d="m364 200 76 44c18 10 18 34 0 44l-76 44-84-76z"/></svg>
+            <span><small>GET IT ON</small>Google Play</span>
+          </a>
+        </div>
+        <p class="app-promo__note"><i data-lucide="smartphone"></i>Free for iPhone and Android</p>
+      </div>
+
+      <!-- Phone mockups (decorative): built in HTML/CSS using the church's own content -->
+      <div class="app-promo__devices reveal reveal--right" aria-hidden="true">
+        <div class="phone phone--back">
+          <div class="phone__screen">
+            <div class="phone__status"><span>9:41</span><span class="phone__island"></span><span class="phone__icons"><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+            <div class="phone__title">Sermons</div>
+            <div class="app-hero" style="background-image:url('assets/images/hero-3.jpg')"><strong>Worship. Word. Prayer.</strong><span>New messages every week</span></div>
+            <div class="app-list">
+              <div class="app-list__row"><img src="https://i.ytimg.com/vi/lgdozYubxw4/mqdefault.jpg" alt=""><div><b>Thanksgiving Service</b><span>October 2026</span></div></div>
+              <div class="app-list__row"><img src="https://i.ytimg.com/vi/0X1rbTR4cx8/mqdefault.jpg" alt=""><div><b>Kingdom Stewardship</b><span>Dcn. ’Lekan Abioye</span></div></div>
+              <div class="app-list__row"><img src="https://i.ytimg.com/vi/4D3wv85v-bk/mqdefault.jpg" alt=""><div><b>The Seed and The Future</b><span>Pillars of Mercy</span></div></div>
+            </div>
+            <div class="phone__tabbar"><span><i data-lucide="home"></i>Home</span><span class="is-on"><i data-lucide="play-circle"></i>Watch</span><span><i data-lucide="heart-handshake"></i>Give</span><span><i data-lucide="hand-heart"></i>Prayer</span></div>
+          </div>
+        </div>
+        <div class="phone phone--front">
+          <div class="phone__screen">
+            <div class="phone__status"><span>9:41</span><span class="phone__island"></span><span class="phone__icons"><i data-lucide="wifi"></i><i data-lucide="battery-full"></i></span></div>
+            <div class="phone__title">Welcome!</div>
+            <div class="app-card">
+              <div class="app-card__media"><img src="assets/images/pastor-ola.jpeg" alt="" style="object-position:center 20%"><span class="app-tag">Featured</span></div>
+              <div class="app-card__body"><small>Pastor’s message</small><b>Pastor Ola Olarinde</b><span>A word for this week</span><em>Watch now</em></div>
+            </div>
+            <div class="app-live" style="background-image:url('https://i.ytimg.com/vi/DEQygtr16JM/mqdefault.jpg')"><span class="app-live__pill">● Live</span><b>Sunday Service</b><span>10:00 AM</span></div>
+            <div class="phone__tabbar"><span class="is-on"><i data-lucide="home"></i>Home</span><span><i data-lucide="play-circle"></i>Watch</span><span><i data-lucide="heart-handshake"></i>Give</span><span><i data-lucide="hand-heart"></i>Prayer</span></div>
+          </div>
+        </div>
+        <div class="app-promo__badge"><i data-lucide="bell-ring"></i><div><b>Service starting</b><span>Sunday Service is live now</span></div></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

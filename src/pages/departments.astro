@@ -1,0 +1,49 @@
+---
+/* Departments. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+import { regions } from "../lib/cms.js"; // dashboard sections: departments
+---
+<BaseLayout
+  page="departments.html"
+  title="Departments"
+  description="Serve at Mercy Seat Chapel through the Choir, Evangelism, Drama, Multimedia, Information Technology and Marriage Counselling departments."
+  image="assets/images/hero-3.jpg"
+>
+  <PageHero
+    title="Departments"
+    image="assets/images/hero-3.jpg"
+    crumbs={[{"label":"Home","href":"index.html"},{"label":"Departments"}]}
+  >
+    <p>Every department at Mercy Seat Chapel exists to serve God and His people with a spirit of excellence.</p>
+  </PageHero>
+
+  <nav class="tabnav" aria-label="Departments page sections" data-tabnav>
+    <ul class="tabnav__list">
+      <li><a href="#choir">Choir</a></li>
+      <li><a href="#evangelism">Evangelism</a></li>
+      <li><a href="#drama">Drama</a></li>
+      <li><a href="#multimedia">Multimedia</a></li>
+      <li><a href="#information-technology">Information Technology</a></li>
+      <li><a href="#marriage-counselling">Marriage Counselling</a></li>
+    </ul>
+  </nav>
+
+  <section class="section">
+    <div class="container zz zz--top">
+
+      <!-- Departments are managed in the dashboard (Departments) -->
+      <Fragment set:html={regions["departments"]} />
+
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container">
+      <div class="cta-band reveal">
+        <div><h2>Ready to serve?</h2><p>Talk to us about joining a department and using your gifts for the Kingdom.</p></div>
+        <div class="btn-row"><a class="btn btn--primary" href="contact.html">Contact Us</a><a class="btn btn--outline-light" href="ministries.html">See Ministries</a></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

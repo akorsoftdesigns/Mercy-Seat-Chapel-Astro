@@ -1,0 +1,33 @@
+---
+/* Become a Member. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+import { regions } from "../lib/cms.js"; // dashboard sections: about-journey, about-cta
+---
+<BaseLayout
+  page="become-a-member.html"
+  title="Become a Member"
+  description="From your first visit to finding your place: the six steps to becoming part of the Mercy Seat Chapel family."
+  image="assets/images/church-1716.jpg"
+>
+  <PageHero
+    title="Become a Member"
+    image="assets/images/church-1716.jpg"
+    crumbs={[{"label":"Home","href":"index.html"},{"label":"Become a Member"}]}
+  >
+    <p>Belong, grow and serve with the Mercy Seat Chapel family.</p>
+  </PageHero>
+
+  <!-- Membership journey and call to action:
+       managed in the dashboard (About page); the content between the cms markers is written from there -->
+  <section class="section section--white" id="journey">
+    <div class="container">
+      <div class="about-block about-block--first">
+        <Fragment set:html={regions["about-journey"]} />
+      </div>
+      <div class="about-block about-block--cta">
+        <Fragment set:html={regions["about-cta"]} />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

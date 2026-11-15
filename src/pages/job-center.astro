@@ -1,0 +1,44 @@
+---
+/* Job Center. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+import { regions } from "../lib/cms.js"; // dashboard sections: jobs
+---
+<BaseLayout
+  page="job-center.html"
+  title="Job Center"
+  description="Current job openings at Mercy Seat Chapel."
+  image="assets/images/job-center.jpg"
+>
+  <PageHero
+    title="Job Center"
+    image="assets/images/job-center.jpg"
+    crumbs={[{"label":"Home","href":"index.html"},{"label":"Job Center"}]}
+  >
+    <p>Join a friendly work environment where people are valued and celebrated.</p>
+  </PageHero>
+
+  <section class="section">
+    <div class="container with-aside">
+      <div>
+        <div class="reveal">
+          <span class="eyebrow">Careers</span>
+          <h2>Current Job Openings</h2>
+          <p class="lead">Do you pride yourself on being a team player? Are you a people person? Do you have the ability to manage activities effectively and efficiently? Are you innovative, creative, and possess problem-solving skills? If you like to take on tasks that stretch and challenge your thinking and enjoy a friendly work environment where people are valued and celebrated, then we invite you to join our growing team here at Mercy Seat Chapel.</p>
+        </div>
+        <!-- Managed in the dashboard (Job Center: only published jobs with status Open are listed) -->
+        <div style="display:grid; gap:14px; margin-top:32px">
+          <Fragment set:html={regions["jobs"]} />
+        </div>
+      </div>
+      <aside class="reveal reveal--right">
+        <div class="icon-card">
+          <div class="icon-card__icon"><i data-lucide="briefcase"></i></div>
+          <h3>Looking for work?</h3>
+          <p>The Empowerment Ministry helps match church members with job openings in the metro area, reviews résumés and prepares members for interviews.</p>
+          <a class="link-arrow" href="ministries.html#empowerment" style="margin-top:14px">Empowerment Ministry <i data-lucide="arrow-right"></i></a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
