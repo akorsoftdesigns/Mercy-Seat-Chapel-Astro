@@ -1,9 +1,10 @@
 /* ==========================================================================
    Mercy Seat Chapel — shared site script
-   - SITE: single source of truth for contact details, service times & links
-   - Renders the shared header (floating sticky nav) and footer on every page
-   - Small, scoped interactions: menus, hero slider, tabs, video player,
+   - SITE: contact details and links for the scripts below (a copy of the dashboard's
+     Site Settings, kept up to date by `npm run content`)
+   - Small, scoped interactions: menus, search, hero slider, tabs, video player,
      scroll-reveal animations, demo form handling
+   The header, footer and page content arrive complete from the build (Astro).
    ========================================================================== */
 
 // Fixed details (not managed in the dashboard)
@@ -48,209 +49,9 @@ const SITE_SETTINGS = {
 
 const SITE = { ...SITE_FIXED, ...SITE_SETTINGS };
 
-const NAV = [
-  { label: "Home", href: "index.html" },
-  // About: four links jump to sections of about.html; Our Vision & Values is its own page.
-  // "pages" = extra pages that should highlight this menu item as the current section
-  { label: "About", href: "about.html", pages: ["about.html", "rccg.html", "leadership.html"], children: [
-    { label: "RCCG", href: "about.html#who-we-are" },
-    { label: "Pastor’s Message", href: "about.html#pastor" },
-    { label: "Our Beliefs", href: "about.html#beliefs" },
-    { label: "Our Vision & Values", href: "our-vision-values.html" },
-    { label: "Leadership", href: "leadership.html" }
-  ]},
-  // Connect has no page of its own: the label opens the dropdown (href "#" is never followed)
-  { label: "Connect", href: "#", pages: ["foundation-academy.html", "marriage-counselling.html", "seeking-his-presence.html"], children: [
-    { label: "Ministries", href: "ministries.html" },
-    { label: "Departments", href: "departments.html" },
-    { label: "Events & Programs", href: "events.html" },
-    { label: "Outreach & Community", href: "outreach.html" },
-    { label: "Become a Member", href: "become-a-member.html" },
-    { label: "Testimonies", href: "testimonies.html" },
-    { label: "Gallery", href: "gallery.html" }
-  ]},
-  { label: "Sermons", href: "sermons.html", children: [
-    { label: "Latest Messages", href: "sermons.html" },
-    { label: "Watch Live", href: "live.html" }
-  ]},
-  { label: "Contact", href: "contact.html" }
-];
-
-const BRAND_ICONS = {
-  youtube: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>',
-  instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.6" cy="6.4" r=".6" fill="currentColor"/></svg>',
-  facebook: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 22v-8.2h2.8l.4-3.2h-3.2V8.5c0-.9.3-1.6 1.6-1.6h1.7V4.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.3v3.2h2.8V22h3.4Z"/></svg>',
-  twitter: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.8 3h3.1l-6.8 7.7L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.2-8.3L1.8 3h6.4l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.3 4.7H5.5l11.2 14.5Z"/></svg>',
-  tiktok: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 2h-3.4v13.6a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V9.3a6.3 6.3 0 1 0 5.4 6.3V8.7a8 8 0 0 0 4.6 1.5V6.8a4.6 4.6 0 0 1-4.6-4.6Z"/></svg>'
-};
-const SOCIAL_NAMES = { youtube: "YouTube", instagram: "Instagram", facebook: "Facebook", twitter: "X (Twitter)", tiktok: "TikTok" };
-
-const currentPage = (location.pathname.split("/").pop() || "index.html").toLowerCase();
-const isCurrent = (href) => href.split("#")[0].toLowerCase() === currentPage && !href.includes("#");
-
-function socialLinks(cls) {
-  return Object.entries(SITE.social).map(([k, url]) =>
-    `<a class="${cls}" href="${url}" target="_blank" rel="noopener" aria-label="${SITE.name} on ${SOCIAL_NAMES[k] || k}">${BRAND_ICONS[k]}</a>`
-  ).join("");
-}
-
-function renderHeader() {
-  const el = document.querySelector("[data-site-header]");
-  if (!el) return;
-  const items = NAV.map((item, i) => {
-    if (!item.children) {
-      return `<li class="nav-item"><a class="nav-link" href="${item.href}"${isCurrent(item.href) ? ' aria-current="page"' : ""}>${item.label}</a></li>`;
-    }
-    const active = item.children.some((c) => isCurrent(c.href)) || (item.pages || []).includes(currentPage);
-    const current = active ? ' aria-current="page"' : "";
-    // A menu without its own page (href "#") is a button that only opens its dropdown
-    const top = item.href === "#"
-      ? `<button class="nav-link" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="dd-${i}"${current}>${item.label}<i data-lucide="chevron-down"></i></button>`
-      : `<a class="nav-link" href="${item.href}"${current}>${item.label}<i data-lucide="chevron-down"></i></a>`;
-    return `<li class="nav-item">
-      ${top}
-      <ul class="dropdown" id="dd-${i}">${item.children.map((c) => `<li><a href="${c.href}"${isCurrent(c.href) ? ' aria-current="page"' : ""}>${c.label}</a></li>`).join("")}</ul>
-    </li>`;
-  }).join("");
-
-  const mobile = NAV.map((item) => {
-    if (!item.children) return `<div class="m-group"><a href="${item.href}">${item.label}</a></div>`;
-    return `<div class="m-group"><button type="button" aria-expanded="false">${item.label}<i data-lucide="plus"></i></button>
-      <div class="m-sub"><div>${item.children.map((c) => `<a href="${c.href}">${c.label}</a>`).join("")}</div></div></div>`;
-  }).join("") + `<div class="m-group"><button class="m-search" type="button" aria-controls="site-search" aria-expanded="false">Search<i data-lucide="search"></i></button></div>`;
-
-  el.outerHTML = `
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="site-header" id="site-header">
-    <div class="nav-shell">
-      <a class="brand" href="index.html" aria-label="${SITE.name} home"><img src="${SITE.logo}" alt="${SITE.name}" width="141" height="27"></a>
-      <nav class="primary-nav" aria-label="Primary"><ul>${items}<li>${searchBtn("")}</li></ul></nav>
-      <div class="nav-actions">
-        <a class="btn btn--outline-light nav-cta nav-give" href="give.html">Give</a>
-        <a class="btn btn--primary nav-cta nav-visit" href="plan-a-visit.html">Plan Your Visit</a>
-        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><i data-lucide="menu"></i><span>Menu</span></button>
-      </div>
-    </div>
-  </header>
-  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Site menu">
-    <div class="mobile-menu__top">
-      <img src="${SITE.logo}" alt="${SITE.name}">
-      <button class="mobile-close" type="button" aria-label="Close menu"><i data-lucide="x"></i></button>
-    </div>
-    <nav aria-label="Mobile">${mobile}</nav>
-    <div class="mobile-menu__cta">
-      <a class="btn btn--primary" href="plan-a-visit.html">Plan Your Visit</a>
-      <a class="btn btn--outline-light" href="give.html">Give an Offering</a>
-    </div>
-    <div class="mobile-menu__meta">${SITE.address}<br><a href="${SITE.phoneHref}" style="color:inherit">${SITE.phone}</a></div>
-  </div>
-  <div class="search-panel" id="site-search" role="dialog" aria-modal="true" aria-label="Search the site">
-    <div class="search-panel__box">
-      <form class="search-panel__form" role="search">
-        <i data-lucide="search"></i>
-        <input id="site-search-input" type="search" placeholder="Search the site" aria-label="Search the site" autocomplete="off">
-        <button class="search-panel__close" type="button" aria-label="Close search"><i data-lucide="x"></i></button>
-      </form>
-      <p class="search-panel__status" aria-live="polite"></p>
-      <ul class="search-panel__results"></ul>
-    </div>
-  </div>`;
-}
-
-// Search button in the header's centre menu (wide screens); smaller screens use the Search item in the mobile menu
-function searchBtn(cls) {
-  return `<button class="nav-search${cls}" type="button" aria-label="Search the site" aria-controls="site-search" aria-expanded="false"><i data-lucide="search"></i></button>`;
-}
-
-function renderFooter() {
-  const el = document.querySelector("[data-site-footer]");
-  if (!el) return;
-  el.outerHTML = `
-  <footer class="site-footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <img src="${SITE.logo}" alt="${SITE.name}">
-          <p>MERCY SEAT CHAPEL is a mission of The Redeemed Christian Church of God (RCCG). We are bible-believing, multi-racial, loving and family oriented followers of Jesus Christ.</p>
-        </div>
-        <div>
-          <h4>Quick Links</h4>
-          <ul class="footer-links">
-            <li><a href="about.html">About</a></li>
-            <li><a href="ministries.html">Ministries</a></li>
-            <li><a href="departments.html">Departments</a></li>
-            <li><a href="sermons.html">Latest Messages</a></li>
-            <li><a href="live.html">Livestream</a></li>
-            <li><a href="events.html">Events</a></li>
-            <li><a href="job-center.html">MSC Job Center</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>Service Times</h4>
-          <ul class="footer-times">${SITE.times.map((t) => `<li><span>${t.label}</span><b>${t.time}</b></li>`).join("")}</ul>
-          <div class="footer-cta">
-            <a class="link-arrow" href="plan-a-visit.html">Plan a visit <i data-lucide="arrow-right"></i></a>
-            <a class="link-arrow" href="plan-a-visit.html#ride">Need a Ride? <i data-lucide="arrow-right"></i></a>
-          </div>
-        </div>
-        <div>
-          <h4>Contact</h4>
-          <ul class="footer-contact">
-            <li><i data-lucide="map-pin"></i><a href="${SITE.mapsUrl}" target="_blank" rel="noopener">${SITE.address}</a></li>
-            <li><i data-lucide="phone"></i><a href="${SITE.phoneHref}">${SITE.phone}</a></li>
-            <li><i data-lucide="mail"></i><a href="mailto:${SITE.email}">${SITE.email}</a></li>
-          </ul>
-          <div class="footer-socials">${socialLinks("")}</div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>Copyright © ${new Date().getFullYear()} Mercy Seat Chapel. All rights reserved.</span>
-        <a class="footer-parish" href="rccg.html"><img src="assets/images/rccg-logo-white.png" alt="" width="32" height="32">A parish of RCCG</a>
-        <nav aria-label="Legal"><a href="privacy.html">Privacy Policy</a><a href="cookies.html">Cookie Policy</a><a href="terms.html">Terms of Use</a></nav>
-      </div>
-    </div>
-    <div class="footer-marquee" aria-hidden="true"><div class="footer-marquee__track">${`<span>${SITE.name}</span>`.repeat(4)}</div></div>
-  </footer>
-  <button class="to-top" type="button" aria-label="Back to top"><i data-lucide="arrow-up"></i></button>`;
-}
-
-/* Shared snippets: <div data-include="assets/partials/x.html"> is replaced by that file,
-   so one piece of content (e.g. upcoming events) can appear on several pages.
-   If the file can't be loaded (e.g. page opened straight from disk), the div's own
-   fallback content stays. */
-async function loadIncludes() {
-  await Promise.all([...document.querySelectorAll("[data-include]")].map(async (el) => {
-    try {
-      const res = await fetch(el.dataset.include);
-      if (res.ok) el.outerHTML = await res.text();
-    } catch (e) { /* keep fallback */ }
-  }));
-}
-
-/* Fill any element marked data-site="phone|email|address|..." from SITE */
-function fillSiteData() {
-  document.querySelectorAll("[data-site]").forEach((el) => {
-    const key = el.dataset.site;
-    if (key === "phone") { el.textContent = SITE.phone; if (el.tagName === "A") el.href = SITE.phoneHref; }
-    else if (key === "prayer-line") { el.textContent = SITE.prayerLine; if (el.tagName === "A") el.href = SITE.prayerLineHref; }
-    else if (key === "email") { el.textContent = SITE.email; if (el.tagName === "A") el.href = "mailto:" + SITE.email; }
-    else if (key === "address") { el.textContent = SITE.address; if (el.tagName === "A") el.href = SITE.mapsUrl; }
-    else if (key === "website") { el.textContent = SITE.website.replace(/^https?:\/\//, ""); if (el.tagName === "A") el.href = SITE.website; }
-    else if (key === "mailing-address") { el.textContent = SITE.mailingAddress; }
-    else if (key === "logo" || key === "logo-on-light") { el.src = key === "logo" ? SITE.logo : SITE.logoOnLight; el.alt ||= SITE.name; }
-    else if (key === "maps") { if (el.tagName === "A") el.href = SITE.mapsUrl; }
-    else if (key === "giving") { if (el.tagName === "A") el.href = SITE.givingUrl; }
-    else if (key === "youtube-live") { if (el.tagName === "A") el.href = SITE.youtubeLiveUrl; }
-    else if (key === "app-store") { if (el.tagName === "A") el.href = SITE.appStoreUrl; }
-    else if (key === "play-store") { if (el.tagName === "A") el.href = SITE.playStoreUrl; }
-    else if (key === "socials") { el.innerHTML = socialLinks(el.dataset.class || "social-btn"); }
-    else if (SITE.social[key] && el.tagName === "A") { el.href = SITE.social[key]; }
-  });
-  // Links to other organisations' social pages: data-brand="facebook" adds that icon
-  document.querySelectorAll("[data-brand]").forEach((el) => {
-    if (BRAND_ICONS[el.dataset.brand]) el.insertAdjacentHTML("afterbegin", BRAND_ICONS[el.dataset.brand]);
-  });
-}
+/* The header, footer and contact details (data-site) are written into every page when the
+ site is built (src/components/Header.astro, Footer.astro and src/lib/fill-site.js), so this
+script only adds behaviour. SITE above is still used by the video players and forms. */
 
 function initHeader() {
   const header = document.getElementById("site-header");
@@ -316,11 +117,11 @@ function initHeader() {
 }
 
 /* Site search: the header's search buttons open a panel that searches the text of
-   every page linked from the header and footer (plus SEARCH_EXTRA_PAGES and the
-   NAV "pages" lists). Pages are read the first time the panel opens, so nothing
-   needs updating when content changes. Needs the site served over http (as when
-   hosted); opened straight from disk it shows a short notice instead. */
-const SEARCH_EXTRA_PAGES = ["first-timer.html"];
+   every page linked from the header and footer, plus the pages listed in the panel's
+   data-pages (the menu's "pages" lists and SEARCH_EXTRA_PAGES in src/data/site.js).
+   Pages are read the first time the panel opens, so nothing needs updating when
+   content changes. Needs the site served over http (as when hosted); opened straight
+   from disk it shows a short notice instead. */
 function initSearch() {
   const panel = document.getElementById("site-search");
   if (!panel) return;
@@ -347,7 +148,8 @@ function initSearch() {
 
   async function loadPages() {
     const links = [...document.querySelectorAll(".site-header a[href], .site-footer a[href]")].map((a) => a.getAttribute("href").split("#")[0]);
-    const urls = [...new Set([...links, ...NAV.flatMap((n) => n.pages || []), ...SEARCH_EXTRA_PAGES])].filter((h) => /^[\w-]+\.html$/.test(h));
+    const extra = (panel.dataset.pages || "").split(/\s+/);
+    const urls = [...new Set([...links, ...extra])].filter((h) => /^[\w-]+\.html$/.test(h));
     const found = await Promise.all(urls.map(async (url) => {
       try {
         const res = await fetch(url);
@@ -1083,28 +885,22 @@ function initForms() {
 }
 
 document.documentElement.classList.remove("no-js");
-renderHeader();
-renderFooter();
 fillStateSelects();
 initCityLists();
-// Shared snippets load first so the setup below also covers their content
-loadIncludes().then(() => {
-  fillSiteData();
-  initHeader();
-  initSearch();
-  initHero();
-  initFloatGallery();
-  initSliders();
-  initGallery();
-  initFlipbook();
-  openTargetDetails();
-  initTabs();
-  initVideos();
-  initReveal();
-  initCounters();
-  initMinisters();
-  initSubnav();
-  initTabnav();
-  initForms();
-  if (window.lucide) lucide.createIcons();
-});
+initHeader();
+initSearch();
+initHero();
+initFloatGallery();
+initSliders();
+initGallery();
+initFlipbook();
+openTargetDetails();
+initTabs();
+initVideos();
+initReveal();
+initCounters();
+initMinisters();
+initSubnav();
+initTabnav();
+initForms();
+if (window.lucide) lucide.createIcons();

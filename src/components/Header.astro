@@ -2,9 +2,11 @@
 /* Shared header: floating menu bar, phone menu and search panel.
    Menu items come from NAV in src/data/site.js. The behaviour (dropdowns, phone menu,
    search) is in public/assets/js/main.js (initHeader, initSearch). */
-import { SITE, NAV } from "../data/site.js";
+import { SITE, NAV, SEARCH_EXTRA_PAGES } from "../data/site.js";
 interface Props { page: string } // this page's file name, e.g. "privacy.html"
 const { page } = Astro.props;
+// Extra pages for site search (besides the header and footer links): read by initSearch in main.js
+const searchPages = [...new Set([...NAV.flatMap((n) => n.pages || []), ...SEARCH_EXTRA_PAGES])].join(" ");
 const isCurrent = (href: string) => !href.includes("#") && href.toLowerCase() === page;
 const isActive = (item: any) => item.children?.some((c: any) => isCurrent(c.href)) || (item.pages || []).includes(page);
 ---
@@ -54,7 +56,7 @@ const isActive = (item: any) => item.children?.some((c: any) => isCurrent(c.href
   </div>
   <div class="mobile-menu__meta">{SITE.address}<br><a href={SITE.phoneHref} style="color:inherit">{SITE.phone}</a></div>
 </div>
-<div class="search-panel" id="site-search" role="dialog" aria-modal="true" aria-label="Search the site">
+<div class="search-panel" id="site-search" role="dialog" aria-modal="true" aria-label="Search the site" data-pages={searchPages}>
   <div class="search-panel__box">
     <form class="search-panel__form" role="search">
       <i data-lucide="search"></i>

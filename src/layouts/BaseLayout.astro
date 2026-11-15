@@ -19,6 +19,7 @@
 import { SITE } from "../data/site.js";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import { fillSite } from "../lib/fill-site.js";
 
 interface Props { page: string; title: string; description: string; image?: string; imageAlt?: string; noindex?: boolean; robots?: string; hidden?: boolean; baseHref?: string }
 const { page, title, description, image = "", imageAlt = SITE.name, noindex = false, hidden = false, baseHref } = Astro.props;
@@ -29,6 +30,9 @@ const robots = isPreview ? "noindex, nofollow, noarchive" : Astro.props.robots |
 const fullTitle = title.includes(SITE.name) ? title : `${title} – ${SITE.name}`;
 const canonical = `${SITE.website}/${page === "index.html" ? "" : page}`;
 const imageUrl = `${SITE.website}/${image}`;
+
+// The page's content, with data-site contact details filled in from Site Settings (src/lib/fill-site.js)
+const content = fillSite(await Astro.slots.render("default"));
 ---
 <!doctype html>
 <html lang="en" class="no-js">
@@ -66,7 +70,7 @@ const imageUrl = `${SITE.website}/${image}`;
   <Header page={page} />
 
   <main id="main">
-    <slot />
+    <Fragment set:html={content} />
   </main>
 
   <Footer />

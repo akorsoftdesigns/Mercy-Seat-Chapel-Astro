@@ -4,8 +4,7 @@
    Contact details, service times and links come from the dashboard (Site Settings),
    saved by `npm run content`. The values below are only used if that content is missing.
    scripts/fetch-content.mjs also copies the Site Settings into public/assets/js/main.js
-   for the scripts that run in the browser. NAV (the menu) is still repeated in main.js
-   until Phase 5 (docs/astro-migration-plan.md): change both. */
+   for the scripts that run in the browser (video players, forms). NAV (the menu) lives only here. */
 import { cmsSite } from "../lib/cms.js";
 
 // Fixed details (not managed in the dashboard)
@@ -71,6 +70,10 @@ export const NAV = [
   ]},
   { label: "Contact", href: "contact.html" }
 ];
+
+/* Site search reads every page linked from the header and footer, plus the menu's "pages"
+   lists above and these extra pages. Private pages (membership form, job applications) never go here. */
+export const SEARCH_EXTRA_PAGES = ["first-timer.html"];
 
 export const BRAND_ICONS = {
   youtube: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>',
