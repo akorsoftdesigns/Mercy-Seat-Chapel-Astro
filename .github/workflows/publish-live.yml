@@ -1,0 +1,75 @@
+# Builds the Astro version and uploads it to the LIVE site on SiteGround (www.mercyseatchapel.org).
+#
+# SWITCHED OFF until switchover. It runs only when someone presses "Run workflow" in
+# GitHub → Actions → "Publish live site", AND the repository variable LIVE_UPLOAD is "true",
+# AND the SiteGround secrets below exist in THIS repository. None of that is set up yet,
+# so today it cannot upload anything. The live site is still updated by the original
+# website repository. Switchover steps: docs/deployment-astro.md.
+#
+# At switchover, add these triggers (same as the original site's workflow):
+#   push: { branches: [main] }, schedule: [{ cron: "*/30 * * * *" }],
+#   repository_dispatch: { types: [sanity-publish] }
+#
+# Settings (GitHub → Settings → Secrets and variables → Actions):
+#   Variable: LIVE_UPLOAD = true   (the on/off switch)
+#   Secrets:  SITEGROUND_HOST, SITEGROUND_USER, SITEGROUND_PORT (usually 18765),
+#             SITEGROUND_SSH_KEY (private key, no passphrase), SITEGROUND_PATH (e.g. www/mercyseatchapel.org/public_html/)
+#   Optional secret: YOUTUBE_API_KEY (picks the stream that is live for the Watch Live player)
+name: Publish live site
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never two uploads at once; a waiting run finishes rather than being cancelled
+concurrency:
+  group: live-site
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: vars.LIVE_UPLOAD == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ASTRO_TELEMETRY_DISABLED: "1"
+      HAS_SITEGROUND: ${{ secrets.SITEGROUND_HOST != '' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Fetch dashboard content
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: npm run content || echo "Using the saved content"
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload to SiteGround
+        if: env.HAS_SITEGROUND == 'true'
+        env:
+          SSH_KEY: ${{ secrets.SITEGROUND_SSH_KEY }}
+          HOST: ${{ secrets.SITEGROUND_HOST }}
+          USER: ${{ secrets.SITEGROUND_USER }}
+          PORT: ${{ secrets.SITEGROUND_PORT || '18765' }}
+          DEST: ${{ secrets.SITEGROUND_PATH }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/siteground
+          chmod 600 ~/.ssh/siteground
+          ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # The built site only (dist/); only changed files are sent; nothing is deleted on the server
+          rsync -rlz --checksum --itemize-changes \
+            -e "ssh -i ~/.ssh/siteground -p $PORT" \
+            dist/ "$USER@$HOST:$DEST"
+          rm -f ~/.ssh/siteground
