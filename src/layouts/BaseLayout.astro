@@ -9,13 +9,20 @@
      image       link-preview photo, usually the page's banner, e.g. "assets/images/hero-privacy.webp"
      imageAlt    optional; describes the preview photo (default: "Mercy Seat Chapel")
      noindex     optional; true keeps the page out of search engines (private pages)
-   Extra tags for the <head> can be added with <Fragment slot="head">…</Fragment>. */
+     robots      optional; exact robots text instead, e.g. "noindex, nofollow"
+     hidden      optional; true for pages shared by direct link only (membership form, job applications):
+                 no canonical link and no link-preview tags, so no image is needed
+     baseHref    optional; a <base> address placed before every link (the not-found page uses "/" so it
+                 works at any depth)
+   Extra tags for the <head> (e.g. a form's settings) go in <Fragment slot="head">…</Fragment>;
+   extra scripts that must run after main.js go in <Fragment slot="scripts">…</Fragment>. */
 import { SITE } from "../data/site.js";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 
-interface Props { page: string; title: string; description: string; image: string; imageAlt?: string; noindex?: boolean }
-const { page, title, description, image, imageAlt = SITE.name, noindex = false } = Astro.props;
+interface Props { page: string; title: string; description: string; image?: string; imageAlt?: string; noindex?: boolean; robots?: string; hidden?: boolean; baseHref?: string }
+const { page, title, description, image = "", imageAlt = SITE.name, noindex = false, hidden = false, baseHref } = Astro.props;
+const robots = Astro.props.robots || (noindex ? "noindex, nofollow, noarchive" : "");
 
 const fullTitle = title.includes(SITE.name) ? title : `${title} – ${SITE.name}`;
 const canonical = `${SITE.website}/${page === "index.html" ? "" : page}`;
@@ -26,9 +33,11 @@ const imageUrl = `${SITE.website}/${image}`;
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  {baseHref && <base href={baseHref}>}
   <title>{fullTitle}</title>
   <meta name="description" content={description}>
-  {noindex && <meta name="robots" content="noindex, nofollow, noarchive">}
+  {robots && <meta name="robots" content={robots}>}
+  {!hidden && <>
   <link rel="canonical" href={canonical}>
   <!-- Link previews (WhatsApp, Facebook, X, etc.) -->
   <meta property="og:type" content="website">
@@ -39,6 +48,7 @@ const imageUrl = `${SITE.website}/${image}`;
   <meta property="og:image" content={imageUrl}>
   <meta property="og:image:alt" content={imageAlt}>
   <meta name="twitter:card" content="summary_large_image">
+  </>}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
@@ -60,5 +70,6 @@ const imageUrl = `${SITE.website}/${image}`;
   <Footer />
   <script is:inline src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <script is:inline src="assets/js/main.js"></script>
+  <slot name="scripts" />
 </body>
 </html>

@@ -1,0 +1,59 @@
+---
+/* Gallery. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHero from "../components/PageHero.astro";
+---
+<BaseLayout
+  page="gallery.html"
+  title="Gallery"
+  description="Photos from worship services and ministries at Mercy Seat Chapel."
+  image="assets/images/church-1709.jpg"
+>
+  <PageHero
+    title="Gallery"
+    image="assets/images/church-1709.jpg"
+    crumbs={[{"label":"Home","href":"index.html"},{"label":"Gallery"}]}
+  >
+    <p>Moments of worship, fellowship and service from the life of our church family.</p>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <img class="section-head__logo" src="assets/images/mercy-seat-logo-blue.png" data-site="logo-on-light" alt="Mercy Seat Chapel" width="910" height="174">
+        <span class="eyebrow">Life at Mercy Seat</span>
+        <h2>See what God is <em>doing</em></h2>
+        <p>Hover over a photo to pause it, then select any photo to view it larger.</p>
+      </div>
+    </div>
+
+    <!-- HOW TO ADD A PHOTO: copy one <li> below and change the image file (twice) and the
+         alt text (it is also the caption). main.js turns this list into one full-width
+         scrolling row; without JavaScript it shows as a plain grid. -->
+    <div class="photo-rows" data-gallery>
+      <div class="container">
+        <ul class="gallery">
+          <li><a class="gallery__item" href="assets/images/gallery-choir-worship.jpg"><img src="assets/images/gallery-choir-worship.jpg" alt="A choir member bowing in passionate worship as the choir sings behind her" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/church-1705.jpg"><img src="assets/images/church-1705.jpg" alt="The choir leading praise as the congregation stands in worship" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/hero-3.jpg"><img src="assets/images/hero-3.jpg" alt="The choir ministering in song" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/church-1706.jpg"><img src="assets/images/church-1706.jpg" alt="Members standing together during praise and worship" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/church-1709.jpg"><img src="assets/images/church-1709.jpg" alt="Worshippers lifting their hands as the choir sings" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/hero-4.jpg"><img src="assets/images/hero-4.jpg" alt="A smiling member worshipping during a Sunday service" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/church-1716.jpg"><img src="assets/images/church-1716.jpg" alt="Members of all ages standing in worship" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/hero-2-sm.jpg"><img src="assets/images/hero-2-sm.jpg" alt="A worshipper in prayer during a service" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/children-2.jpg"><img src="assets/images/children-2.jpg" alt="Children and teens of Mercy Seat Chapel" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/revive-1.jpg"><img src="assets/images/revive-1.jpg" alt="Young adults of the Revive ministry" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/revive-2.jpg"><img src="assets/images/revive-2.jpg" alt="Young adults of the Revive ministry together" loading="lazy"></a></li>
+          <li><a class="gallery__item" href="assets/images/hero-1.jpg"><img src="assets/images/hero-1.jpg" alt="Members of the Pillars of Mercy women’s ministry" loading="lazy"></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Full photo albums (Pixieset); opens in a new tab -->
+    <div class="container">
+      <div class="btn-row btn-row--center reveal">
+        <a class="btn btn--secondary" href="https://mercyseatchapel.pixieset.com/" target="_blank" rel="noopener">View More Pictures <i data-lucide="arrow-up-right"></i></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

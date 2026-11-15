@@ -1,0 +1,55 @@
+---
+/* Page Not Found. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  page="404.html"
+  title="Page Not Found"
+  description="The page you were looking for could not be found."
+  hidden
+  robots="noindex"
+  baseHref="/"
+>
+  {/* Shown for any missing address (even deep ones like /a/b/c), so baseHref="/" makes every link and file read from the site root */}
+
+  <section class="lost">
+    <div class="container lost__grid">
+      <!-- Open Bible whose pages turn in a loop (decorative) -->
+      <div class="bible" aria-hidden="true">
+        <div class="bible__book">
+          <div class="bible__cover"></div>
+          <div class="bible__page bible__page--left"></div>
+          <div class="bible__page bible__page--right"></div>
+          <div class="bible__flip" style="--i:0"><span class="bible__face bible__face--front"></span><span class="bible__face bible__face--back"></span></div>
+          <div class="bible__flip" style="--i:1"><span class="bible__face bible__face--front"></span><span class="bible__face bible__face--back"></span></div>
+          <div class="bible__flip" style="--i:2"><span class="bible__face bible__face--front"></span><span class="bible__face bible__face--back"></span></div>
+          <div class="bible__ribbon"></div>
+        </div>
+        <div class="bible__shadow"></div>
+        <span class="bible__code">404</span>
+      </div>
+
+      <div class="lost__text">
+        <span class="eyebrow">Page not found</span>
+        <h1>Are you lost? We can help you.</h1>
+        <p class="lead">The page you’re looking for may have moved or no longer exists. Don’t worry, there’s always a way home.</p>
+        <blockquote class="scripture">For the Son of Man came to seek and to save the lost.<cite>Luke 19:10</cite></blockquote>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="index.html"><i data-lucide="home"></i> Back to Home</a>
+          <a class="btn btn--outline" href="contact.html">Contact Us</a>
+        </div>
+        <nav class="lost__links" aria-label="Popular pages">
+          <h2>Popular pages</h2>
+          <ul>
+            <li><a href="plan-a-visit.html"><i data-lucide="map-pin"></i>Plan a Visit</a></li>
+            <li><a href="sermons.html"><i data-lucide="play-circle"></i>Latest Messages</a></li>
+            <li><a href="live.html"><i data-lucide="radio"></i>Watch Live</a></li>
+            <li><a href="events.html"><i data-lucide="calendar"></i>Events &amp; Programs</a></li>
+            <li><a href="ministries.html"><i data-lucide="users"></i>Ministries</a></li>
+            <li><a href="give.html"><i data-lucide="heart-handshake"></i>Give</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
