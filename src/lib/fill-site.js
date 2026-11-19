@@ -32,6 +32,7 @@ function valuesFor(key) {
     case "maps": return [undefined, SITE.mapsUrl];
     case "giving": return [undefined, SITE.givingUrl];
     case "youtube-live": return [undefined, SITE.youtubeLiveUrl];
+    case "sermons-channel": return [undefined, SITE.sermonsChannelUrl];
     case "app-store": return [undefined, SITE.appStoreUrl];
     case "play-store": return [undefined, SITE.playStoreUrl];
     default: return [undefined, SITE.social?.[key]];

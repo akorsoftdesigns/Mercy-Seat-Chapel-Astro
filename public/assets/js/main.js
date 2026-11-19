@@ -545,20 +545,56 @@ function ytUploadsMarkup() {
   const list = SITE.youtubeChannelId.replace(/^UC/, "UU");
   return `<iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${list}&rel=0" title="Latest videos from ${SITE.name}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
 }
+const ytIframe = (src, title) =>
+  `<iframe src="${src}" title="${escAttr(title || "YouTube video")}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+
+/* Plays a thumbnail's video in a page's main player instead of where the thumbnail is.
+   Used by [data-plays-in="#player-id"] areas (Sermons page "Teaching series"): the player
+   (.video-feature) swaps to the video, updates its title and date, and scrolls into view.
+   Nothing leaves the page; only buttons that say "YouTube" go to YouTube. */
+function playInPlayer(player, box) {
+  const yt = player.querySelector(".yt");
+  yt.dataset.id = box.dataset.id;
+  yt.dataset.title = box.dataset.title || "";
+  yt.innerHTML = ytIframe(`https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1&rel=0`, box.dataset.title);
+  const title = player.querySelector(".video-feature__body h3"), meta = player.querySelector(".video-feature__body p");
+  if (title) title.textContent = box.dataset.title || "";
+  if (meta) meta.textContent = box.dataset.meta || "";
+  document.querySelectorAll(".card.is-playing").forEach((c) => c.classList.remove("is-playing"));
+  box.closest(".card")?.classList.add("is-playing");
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  player.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" });
+}
+
 // Thumbnail with a play button; the YouTube player only loads when clicked
 function setupYt(box) {
   if (!box.innerHTML.trim()) box.innerHTML = ytMarkup(box.dataset.id, box.dataset.title || "video");
   box.addEventListener("click", () => {
+    const area = box.closest("[data-plays-in]");
+    const player = area && document.querySelector(area.dataset.playsIn);
+    if (player) return playInPlayer(player, box);
     if (box.querySelector("iframe")) return;
     const src = box.dataset.src || `https://www.youtube-nocookie.com/embed/${box.dataset.id}?autoplay=1&rel=0`;
-    box.innerHTML = `<iframe src="${src}" title="${escAttr(box.dataset.title || "YouTube video")}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    box.innerHTML = ytIframe(src, box.dataset.title);
   });
 }
 function initVideos() {
-  // A .yt[data-live] box plays SITE.liveVideoId, or the channel's current live stream if that's empty
+  // A .yt[data-live] box (Watch Live) plays, right on the page, the stream the build picked
+  // with the YouTube API: the live stream if there is one, else the most recent livestream
+  // (SITE.liveVideoId). It also re-reads assets/data/youtube-live.json in case this page was
+  // cached before a stream started. With neither, the channel's live stream is embedded.
   document.querySelectorAll(".yt[data-live]").forEach((box) => {
-    if (SITE.liveVideoId) { box.dataset.id = SITE.liveVideoId; delete box.dataset.src; }
+    const use = (id) => {
+      box.dataset.id = id; delete box.dataset.src;
+      const img = box.querySelector("img");
+      if (img) img.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+    };
+    if (SITE.liveVideoId) use(SITE.liveVideoId);
     else box.dataset.src = `https://www.youtube-nocookie.com/embed/live_stream?channel=${SITE.youtubeChannelId}&autoplay=1`;
+    fetch(`assets/data/youtube-live.json?m=${Math.floor(Date.now() / 60000)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { const id = d?.liveVideoId || ""; if (/^[\w-]{11}$/.test(id) && !box.querySelector("iframe")) use(id); })
+      .catch(() => {});
   });
   document.querySelectorAll(".yt[data-uploads]").forEach((box) => { box.innerHTML = ytUploadsMarkup(); });
   document.querySelectorAll(".yt[data-id], .yt[data-uploads]").forEach(setupYt);

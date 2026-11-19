@@ -69,14 +69,39 @@ async function youtubeLive(channel, key) {
   const lists = await Promise.all(["UU", "UULV"].map((p) =>
     api("playlistItems", { part: "contentDetails", playlistId: p + channel.slice(2), maxResults: "5" })));
   const ids = [...new Set(lists.flatMap((l) => (l.items || []).map((i) => i.contentDetails?.videoId)).filter(Boolean))];
-  if (!ids.length) return { live: "", upcoming: "", latest: "" };
+  if (!ids.length) return { live: "", latest: "" };
   const { items = [] } = await api("videos", { part: "snippet,liveStreamingDetails", id: ids.join(",") });
-  const soon = Date.now() + 2 * 3600e3; // a scheduled stream counts from 2 hours before it starts
-  const upcoming = items.filter((v) => v.snippet?.liveBroadcastContent === "upcoming" && Date.parse(v.liveStreamingDetails?.scheduledStartTime) <= soon)
-    .sort((a, b) => Date.parse(a.liveStreamingDetails.scheduledStartTime) - Date.parse(b.liveStreamingDetails.scheduledStartTime))[0];
+  // The most recent livestream that has finished (scheduled, not-yet-started streams are ignored)
   const latest = items.filter((v) => v.liveStreamingDetails?.actualEndTime)
     .sort((a, b) => Date.parse(b.liveStreamingDetails.actualEndTime) - Date.parse(a.liveStreamingDetails.actualEndTime))[0];
-  return { live: items.find((v) => v.snippet?.liveBroadcastContent === "live")?.id || "", upcoming: upcoming?.id || "", latest: latest?.id || "" };
+  return { live: items.find((v) => v.snippet?.liveBroadcastContent === "live")?.id || "", latest: latest?.id || "" };
+}
+
+/* ---------- 2b. A channel's livestreams (its YouTube "Live" tab), newest first ----------
+   With the YouTube API key: up to 25, dated by when each stream started, scheduled streams
+   that haven't started left out (2 quota units). Without it, or if the API fails: YouTube's
+   public feed (15 newest). Only video IDs, titles and dates are saved. */
+const churchDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+async function channelStreams(channel, key) {
+  if (key) {
+    try {
+      const api = async (endpoint, params) => {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/${endpoint}?${new URLSearchParams({ ...params, key })}`).catch(() => null);
+        if (!res?.ok) throw new Error(`YouTube API ${endpoint} answered ${res ? res.status : "nothing"}`); // (message never includes the key)
+        return res.json();
+      };
+      const list = await api("playlistItems", { part: "contentDetails", playlistId: "UULV" + channel.slice(2), maxResults: "25" });
+      const ids = (list.items || []).map((i) => i.contentDetails?.videoId).filter(Boolean);
+      if (!ids.length) return [];
+      const { items = [] } = await api("videos", { part: "snippet,liveStreamingDetails", id: ids.join(",") });
+      return items.filter((v) => v.snippet?.liveBroadcastContent !== "upcoming")
+        .map((v) => { const published = v.liveStreamingDetails?.actualStartTime || v.snippet.publishedAt; return { id: v.id, title: v.snippet.title, published, date: churchDay(published) }; })
+        .sort((a, b) => (a.published < b.published ? 1 : -1));
+    } catch (e) {
+      console.warn("[content] YouTube API unavailable for channel streams, using the public feed:", e.message);
+    }
+  }
+  return youtubeFeed(channel, true);
 }
 
 /* ---------- 3. YouTube lists (RSS) ---------- */
@@ -121,15 +146,16 @@ async function main() {
   const settings = docs.find((d) => d._id === "siteSettings");
   const channel = settings?.youtubeChannelId;
 
-  // Live stream for the Watch Live player: live now → starting within 2 hours → dashboard link → latest finished
+  // Live stream for the Watch Live player: live now → most recent finished livestream
+  // (the dashboard's "Current livestream link" only as a fallback when YouTube finds neither)
   let youtubeLiveChoice;
   const ytKey = process.env.YOUTUBE_API_KEY;
   if (settings && ytKey && channel && !flag("--no-youtube")) {
     try {
       const yt = await youtubeLive(channel, ytKey);
       const dashboard = youtubeId(settings.liveVideo);
-      const liveVideoId = yt.live || yt.upcoming || dashboard || yt.latest || "";
-      const status = yt.live ? "live" : yt.upcoming ? "upcoming" : dashboard ? "dashboard" : "latest";
+      const liveVideoId = yt.live || yt.latest || dashboard || "";
+      const status = yt.live ? "live" : yt.latest ? "latest" : dashboard ? "dashboard" : "none";
       youtubeLiveChoice = { liveVideoId, status };
       await save(path.join(PUBLIC, "assets/data/youtube-live.json"), json(youtubeLiveChoice)); // public, no key: the mobile app reads it
       log(`YouTube live: ${status}${liveVideoId ? ` (${liveVideoId})` : ""}`);
@@ -145,6 +171,15 @@ async function main() {
       await save(path.join(PUBLIC, "assets/data/youtube-streams.json"), json(youtube.streams));
       log(`YouTube: ${youtube.uploads.length} uploads, ${youtube.streams.length} live streams`);
     } catch (e) { console.warn("[content] YouTube feed unavailable, video lists left as they were:", e.message); }
+  }
+  // Sermons page "Teaching series": livestreams of the MSC Sermons channel (ID in src/data/site.js)
+  const sermonsChannel = (await readFile(path.join(PUBLIC, "..", "src/data/site.js"), "utf8")).match(/sermonsChannelId:\s*"(UC[\w-]{22})"/)?.[1];
+  if (!flag("--no-youtube") && sermonsChannel) {
+    try {
+      const talks = await channelStreams(sermonsChannel, process.env.YOUTUBE_API_KEY);
+      await save(path.join(PUBLIC, "assets/data/youtube-sermons.json"), json(talks));
+      log(`YouTube: ${talks.length} MSC Sermons livestreams`);
+    } catch (e) { console.warn("[content] MSC Sermons channel unavailable, Teaching series left as it was:", e.message); }
   }
 
   // Snapshot for the build (only the pictures/files the content points to)

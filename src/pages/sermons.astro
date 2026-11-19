@@ -2,7 +2,7 @@
 /* Latest Messages. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PageHero from "../components/PageHero.astro";
-import { regions } from "../lib/cms.js"; // dashboard sections: recent-services, sermons-more
+import { regions } from "../lib/cms.js"; // sections: sermon-feature (newest video), teaching-series (MSC Sermons livestreams)
 ---
 <BaseLayout
   page="sermons.html"
@@ -21,19 +21,13 @@ import { regions } from "../lib/cms.js"; // dashboard sections: recent-services,
   <section class="section">
     <div class="container">
       <div class="section-head section-head--split reveal">
-        <div><span class="eyebrow">Featured</span><h2>Recent services</h2></div>
+        <div><span class="eyebrow">Featured</span><h2>Latest message</h2></div>
         <a class="btn btn--outline" data-site="youtube" href="#" target="_blank" rel="noopener">Subscribe on YouTube <i data-lucide="arrow-up-right"></i></a>
       </div>
-      <!-- data-youtube-feed="5": the list is replaced with the channel's 5 newest uploads (newest first, pulled live from SITE.youtubeChannelId) and the newest is featured. 5 items fill the player's height exactly (video-list--fit), so there is no scrollbar. The markup below is only the fallback shown if the feed can't be reached. -->
-      <div class="messages reveal" data-playlist data-youtube-feed="5">
-        <div class="video-feature">
-          <div class="yt" data-uploads></div>
-          <div class="video-feature__body"><h3>Latest from our channel</h3><p>Newest service first · updates automatically</p></div>
-        </div>
-        <div class="video-list video-list--fit" aria-label="Recent services">
-          <button class="video-list__item is-active" data-uploads data-title="Latest from our channel" data-meta="Newest service first · updates automatically"><span class="video-list__thumb"><i data-lucide="radio"></i></span><span><strong>Latest from our channel</strong><span>Updates automatically</span></span></button>
-          <Fragment set:html={regions["recent-services"]} />
-        </div>
+      <!-- Main player: the church channel's newest video, played on this page. Any Teaching series
+           thumbnail below also plays here (data-plays-in="#sermon-player"). -->
+      <div class="video-feature reveal" id="sermon-player">
+        <Fragment set:html={regions["sermon-feature"]} />
       </div>
     </div>
   </section>
@@ -44,11 +38,12 @@ import { regions } from "../lib/cms.js"; // dashboard sections: recent-services,
         <span class="eyebrow">Teaching series</span>
         <h2>More messages</h2>
       </div>
-      <!-- Managed in the dashboard (Sermons marked “Show in More messages”) -->
-      <div class="grid grid--3">
-        <Fragment set:html={regions["sermons-more"]} />
+      <!-- The newest livestreams from the MSC Sermons YouTube channel (sermonsChannelId in src/data/site.js),
+           most recent first. Clicking a thumbnail plays it in the main player above, on this page. -->
+      <div class="grid grid--3" data-plays-in="#sermon-player">
+        <Fragment set:html={regions["teaching-series"]} />
       </div>
-      <div class="text-center" style="margin-top:40px"><a class="btn btn--secondary" data-site="youtube" href="#" target="_blank" rel="noopener">See all messages on YouTube <i data-lucide="arrow-up-right"></i></a></div>
+      <div class="text-center" style="margin-top:40px"><a class="btn btn--secondary" data-site="sermons-channel" href="#" target="_blank" rel="noopener">See all sermons on YouTube <i data-lucide="arrow-up-right"></i></a></div>
     </div>
   </section>
 

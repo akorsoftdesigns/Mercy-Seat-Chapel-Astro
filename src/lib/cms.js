@@ -14,7 +14,8 @@ const readJson = (file, fallback) => (existsSync(file) ? JSON.parse(readFileSync
 const snapshot = readJson(SNAPSHOT, null);
 const youtube = {
   uploads: readJson(path.join(PUBLIC, "assets/data/youtube-uploads.json"), []),
-  streams: readJson(path.join(PUBLIC, "assets/data/youtube-streams.json"), [])
+  streams: readJson(path.join(PUBLIC, "assets/data/youtube-streams.json"), []),
+  sermons: readJson(path.join(PUBLIC, "assets/data/youtube-sermons.json"), []) // MSC Sermons channel livestreams
 };
 const built = snapshot ? buildCms(snapshot, youtube) : { site: null, regions: {}, pending: [] };
 if (!snapshot) console.warn("[cms] src/data/cms-snapshot.json is missing: run `npm run content` first. Dashboard sections will be empty.");

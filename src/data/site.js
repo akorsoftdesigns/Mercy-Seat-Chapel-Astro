@@ -13,7 +13,11 @@ export const SITE_FIXED = {
   logo: "assets/images/mercy-seat-logo-white.png",       // white logo: header, mobile menu, footer and any blue background
   logoOnLight: "assets/images/mercy-seat-logo-blue.png", // blue logo: light backgrounds inside pages
   website: "https://www.mercyseatchapel.org",
-  dashboardUrl: "https://crm.mercyseatchapel.org/"
+  dashboardUrl: "https://crm.mercyseatchapel.org/",
+  // "MSC Sermons" YouTube channel: its livestreams fill "Teaching series" on the Sermons page
+  // (scripts/fetch-content.mjs reads the ID from here). The link is for "See all sermons on YouTube".
+  sermonsChannelId: "UCbp8b4Zy37UxfPlrLodUmqQ",
+  sermonsChannelUrl: "https://www.youtube.com/@mscsermons/streams"
 };
 
 // Fallback contact details, service times and links (the live values are edited in the dashboard: Site Settings)

@@ -206,15 +206,17 @@ export function buildCms(snapshot, youtube = {}, today = todayInChurchTz()) {
   }
 
   // ---- Sermons ----
-  const sermons = byType("sermon").filter((s) => !s.archived && s.featured !== false && youtubeId(s.youtube))
-    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999) || String(b.date || "").localeCompare(String(a.date || "")));
-  if (sermons.length) regions["sermons-more"] = sermons.map((s, i) => R.sermonCard(c, s, i)).join("\n");
+  // The Sermons page "Teaching series" comes from the MSC Sermons YouTube channel (below), so the
+  // dashboard's Sermons no longer fill a page section (the mobile app still lists them).
+  // To bring them back: regions["sermons-more"] = sermons.map((s, i) => R.sermonCard(c, s, i)).join("\n")
 
   // ---- YouTube lists (saved by scripts/fetch-content.mjs) ----
   const name = "Mercy Seat Chapel";
-  const { uploads = [], streams = [] } = youtube;
+  const { uploads = [], streams = [], sermons = [] } = youtube;
   if (streams.length) regions["latest-messages"] = R.messagesHtml(streams.slice(0, 5), name);
-  if (uploads.length) regions["recent-services"] = uploads.slice(0, 4).map((v, i) => R.videoListItem(v, i + 1, name)).join("\n");
+  // Sermons page: one big player with the newest video, and the MSC Sermons livestreams (newest first)
+  if (uploads.length) regions["sermon-feature"] = R.sermonFeature(uploads[0], name);
+  if (sermons.length) regions["teaching-series"] = sermons.slice(0, 12).map((v, i) => R.teachingCard(v, i, "MSC Sermons")).join("\n");
   const replays = streams.filter((v) => v.id !== site?.liveVideoId).slice(0, 4);
   if (replays.length) regions["recent-livestreams"] = replays.map(R.streamCard).join("\n");
 
