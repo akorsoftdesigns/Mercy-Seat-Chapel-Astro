@@ -172,7 +172,8 @@ export function buildCms(snapshot, youtube = {}, today = todayInChurchTz()) {
     const times = deref(home.serviceTimes);
     if (times.length) regions["service-times"] = times.map((e, i) => R.timeCard(c, e, i)).join("\n");
     const liveTimes = deref(home.liveSchedule);
-    if (liveTimes.length) regions["live-schedule"] = liveTimes.map((e, i) => R.liveCard(c, e, i)).join("\n");
+    // Watch Live: "When we stream" is a short line under the player
+    if (liveTimes.length) regions["live-schedule-note"] = R.liveScheduleNote(liveTimes);
     const mins = deref(home.featuredMinistries);
     if (mins.length) regions["place-tabs"] = R.placeTabs(c, mins);
     const outs = deref(home.featuredOutreach);
@@ -217,8 +218,12 @@ export function buildCms(snapshot, youtube = {}, today = todayInChurchTz()) {
   // Sermons page: one big player with the newest video, and the MSC Sermons livestreams (newest first)
   if (uploads.length) regions["sermon-feature"] = R.sermonFeature(uploads[0], name);
   if (sermons.length) regions["teaching-series"] = sermons.slice(0, 12).map((v, i) => R.teachingCard(v, i, "MSC Sermons")).join("\n");
-  const replays = streams.filter((v) => v.id !== site?.liveVideoId).slice(0, 4);
-  if (replays.length) regions["recent-livestreams"] = replays.map(R.streamCard).join("\n");
+  // Watch Live "Recent livestreams": playlist buttons + cards that open on YouTube
+  if (streams.length) {
+    const live = R.livestreamFilters(youtube.playlists || [], streams, site?.liveVideoId);
+    regions["livestream-tabs"] = live.tabs;
+    regions["recent-livestreams"] = live.cards;
+  }
 
   return { site, regions, pending };
 }

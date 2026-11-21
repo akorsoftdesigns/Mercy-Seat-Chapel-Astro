@@ -104,6 +104,38 @@ async function channelStreams(channel, key) {
   return youtubeFeed(channel, true);
 }
 
+/* ---------- 2c. The channel's playlists, for the Watch Live filter buttons ----------
+   "Sunday Service" first, then the other playlists by their newest video; only playlists with a
+   video in the last PLAYLIST_MAX_AGE_DAYS days, at most PLAYLIST_BUTTONS (same as the live site). */
+const PLAYLIST_BUTTONS = 10, PLAYLIST_MAX_AGE_DAYS = 365, PLAYLIST_FIRST = /^sunday service$/i;
+async function channelPlaylists(channel, key) {
+  const api = async (endpoint, params) => {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/${endpoint}?${new URLSearchParams({ ...params, key })}`).catch(() => null);
+    if (!res?.ok) throw new Error(`YouTube API ${endpoint} answered ${res ? res.status : "nothing"}`); // (message never includes the key)
+    return res.json();
+  };
+  const { items: lists = [] } = await api("playlists", { part: "snippet", channelId: channel, maxResults: "50" });
+  const out = [];
+  for (const p of lists) {
+    const videos = [];
+    let pageToken = "";
+    for (let page = 0; page < 4; page++) {
+      const r = await api("playlistItems", { part: "snippet,contentDetails", playlistId: p.id, maxResults: "50", ...(pageToken && { pageToken }) });
+      for (const it of r.items || []) {
+        const published = it.contentDetails?.videoPublishedAt;
+        if (published) videos.push({ id: it.contentDetails.videoId, title: it.snippet.title, published, date: churchDay(published) });
+      }
+      if (!(pageToken = r.nextPageToken)) break;
+    }
+    videos.sort((a, b) => (a.published < b.published ? 1 : -1));
+    if (videos.length) out.push({ id: p.id, title: p.snippet.title.trim(), latest: videos[0].published, videos: videos.slice(0, 12) });
+  }
+  const since = new Date(Date.now() - PLAYLIST_MAX_AGE_DAYS * 864e5).toISOString();
+  return out.filter((p) => PLAYLIST_FIRST.test(p.title) || p.latest >= since)
+    .sort((a, b) => (PLAYLIST_FIRST.test(b.title) - PLAYLIST_FIRST.test(a.title)) || (a.latest < b.latest ? 1 : -1))
+    .slice(0, PLAYLIST_BUTTONS);
+}
+
 /* ---------- 3. YouTube lists (RSS) ---------- */
 const xmlText = (s) => s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 async function youtubeFeed(channel, streams) {
@@ -180,6 +212,18 @@ async function main() {
       await save(path.join(PUBLIC, "assets/data/youtube-sermons.json"), json(talks));
       log(`YouTube: ${talks.length} MSC Sermons livestreams`);
     } catch (e) { console.warn("[content] MSC Sermons channel unavailable, Teaching series left as it was:", e.message); }
+  }
+  // Watch Live filter buttons: the channel's playlists (needs the YouTube API key; refreshed at most
+  // hourly; otherwise public/assets/data/youtube-playlists.json is kept as it is)
+  const playlistsFile = path.join(PUBLIC, "assets/data/youtube-playlists.json");
+  const savedPlaylists = existsSync(playlistsFile) ? JSON.parse(await readFile(playlistsFile, "utf8")) : { updated: "" };
+  const ytKeyLists = process.env.YOUTUBE_API_KEY;
+  if (!flag("--no-youtube") && channel && ytKeyLists && (!savedPlaylists.updated || Date.now() - Date.parse(savedPlaylists.updated) > 55 * 60e3)) {
+    try {
+      const playlists = await channelPlaylists(channel, ytKeyLists);
+      await save(playlistsFile, json({ updated: new Date().toISOString(), playlists }));
+      log(`YouTube: ${playlists.length} playlists for Watch Live`);
+    } catch (e) { console.warn("[content] YouTube playlists unavailable, kept the saved list:", e.message); }
   }
 
   // Snapshot for the build (only the pictures/files the content points to)

@@ -1,7 +1,7 @@
 ---
 /* Watch Live. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { regions } from "../lib/cms.js"; // dashboard sections: live-schedule, recent-livestreams
+import { regions } from "../lib/cms.js"; // sections: live-schedule-note, livestream-tabs, recent-livestreams
 ---
 <BaseLayout
   page="live.html"
@@ -27,16 +27,12 @@ import { regions } from "../lib/cms.js"; // dashboard sections: live-schedule, r
       </div>
       <!-- Opens the channel's current live stream on YouTube (link set in Site Settings in the dashboard) -->
       <div class="btn-row reveal" style="margin-top:20px"><a class="btn btn--outline" data-site="youtube-live" data-brand="youtube" href="#" target="_blank" rel="noopener">Watch on YouTube</a></div>
-      <div class="notice reveal" style="margin-top:20px"><i data-lucide="info"></i><p>Press play to join the current livestream. If we’re not live right now, the player shows our most recent livestream. More past services are below.</p></div>
-    </div>
-  </section>
-
-  <section class="section section--white">
-    <div class="container">
-      <div class="section-head reveal"><span class="eyebrow">Live schedule</span><h2>When we stream</h2></div>
-      <!-- Managed in the dashboard (Homepage → Watch Live page: “When we stream” cards) -->
-      <div class="grid grid--3">
-        <Fragment set:html={regions["live-schedule"]} />
+      <div class="notice reveal" style="margin-top:20px"><i data-lucide="calendar-clock"></i>
+        <div class="notice__text">
+          <!-- When we stream: managed in the dashboard (Homepage → Watch Live page: “When we stream” list) -->
+          <Fragment set:html={regions["live-schedule-note"]} />
+          <p>Press play to join the current livestream. If we’re not live right now, the player shows our most recent livestream. More past services are below.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -47,8 +43,12 @@ import { regions } from "../lib/cms.js"; // dashboard sections: live-schedule, r
         <div><span class="eyebrow">Replay</span><h2>Recent livestreams</h2></div>
         <a class="btn btn--outline" href="sermons.html">Latest Messages <i data-lucide="arrow-right"></i></a>
       </div>
-      <!-- data-youtube-grid="4" + data-youtube-source="streams": these cards are replaced with the 4 newest live streams from the channel's YouTube "Live" tab (skipping the one in the player above). The cards below are only the fallback shown if the feed can't be reached. -->
-      <div class="grid grid--4" data-youtube-grid="4" data-youtube-source="streams">
+      <!-- Filter buttons: "All" (newest livestreams) and the channel's YouTube playlists, Sunday Service
+           first, then by newest video. Cards open on YouTube in a new tab. -->
+      <div class="place__tabs place__tabs--light reveal" role="group" aria-label="Filter livestreams by playlist" data-filters="#livestream-cards">
+        <Fragment set:html={regions["livestream-tabs"]} />
+      </div>
+      <div class="grid grid--4" id="livestream-cards" data-per="8">
         <Fragment set:html={regions["recent-livestreams"]} />
       </div>
     </div>

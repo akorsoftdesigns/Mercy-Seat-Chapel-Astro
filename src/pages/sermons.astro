@@ -40,10 +40,11 @@ import { regions } from "../lib/cms.js"; // sections: sermon-feature (newest vid
       </div>
       <!-- The newest livestreams from the MSC Sermons YouTube channel (sermonsChannelId in src/data/site.js),
            most recent first. Clicking a thumbnail plays it in the main player above, on this page. -->
-      <div class="grid grid--3" data-plays-in="#sermon-player">
+      <!-- 12 cards = 3 rows of 4 on wide screens (2 across on tablets, 1 on phones) -->
+      <div class="grid grid--4" data-plays-in="#sermon-player">
         <Fragment set:html={regions["teaching-series"]} />
       </div>
-      <div class="text-center" style="margin-top:40px"><a class="btn btn--secondary" data-site="sermons-channel" href="#" target="_blank" rel="noopener">See all sermons on YouTube <i data-lucide="arrow-up-right"></i></a></div>
+      <div class="text-center" style="margin-top:40px"><a class="btn btn--secondary" data-site="sermons-channel" href="#" target="_blank" rel="noopener">See all services <i data-lucide="arrow-up-right"></i></a></div>
     </div>
   </section>
 
