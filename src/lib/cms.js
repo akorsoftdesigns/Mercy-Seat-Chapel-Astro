@@ -16,7 +16,7 @@ const youtube = {
   uploads: readJson(path.join(PUBLIC, "assets/data/youtube-uploads.json"), []),
   streams: readJson(path.join(PUBLIC, "assets/data/youtube-streams.json"), []),
   sermons: readJson(path.join(PUBLIC, "assets/data/youtube-sermons.json"), []), // MSC Sermons channel livestreams
-  playlists: readJson(path.join(PUBLIC, "assets/data/youtube-playlists.json"), { playlists: [] }).playlists // Watch Live filter buttons
+  videoLists: readJson(path.join(PUBLIC, "assets/data/youtube-playlists.json"), { all: [], playlists: [] }) // Watch Live: every video + playlist buttons
 };
 const built = snapshot ? buildCms(snapshot, youtube) : { site: null, regions: {}, pending: [] };
 if (!snapshot) console.warn("[cms] src/data/cms-snapshot.json is missing: run `npm run content` first. Dashboard sections will be empty.");

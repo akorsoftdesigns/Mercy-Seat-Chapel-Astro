@@ -114,26 +114,37 @@ async function channelPlaylists(channel, key) {
     if (!res?.ok) throw new Error(`YouTube API ${endpoint} answered ${res ? res.status : "nothing"}`); // (message never includes the key)
     return res.json();
   };
-  const { items: lists = [] } = await api("playlists", { part: "snippet", channelId: channel, maxResults: "50" });
-  const out = [];
-  for (const p of lists) {
+  // Every public playlist on the channel (50 per page; up to 200), so new ones are picked up automatically
+  const lists = [];
+  for (let page = 0, pageToken = ""; page < 4; page++) {
+    const r = await api("playlists", { part: "snippet", channelId: channel, maxResults: "50", ...(pageToken && { pageToken }) });
+    lists.push(...(r.items || []));
+    if (!(pageToken = r.nextPageToken)) break;
+  }
+  // Every video in a playlist, newest first (private and deleted videos left out; up to 2,000)
+  const playlistVideos = async (playlistId) => {
     const videos = [];
-    let pageToken = "";
-    for (let page = 0; page < 4; page++) {
-      const r = await api("playlistItems", { part: "snippet,contentDetails", playlistId: p.id, maxResults: "50", ...(pageToken && { pageToken }) });
+    for (let page = 0, pageToken = ""; page < 40; page++) {
+      const r = await api("playlistItems", { part: "snippet,contentDetails", playlistId, maxResults: "50", ...(pageToken && { pageToken }) });
       for (const it of r.items || []) {
         const published = it.contentDetails?.videoPublishedAt;
         if (published) videos.push({ id: it.contentDetails.videoId, title: it.snippet.title, published, date: churchDay(published) });
       }
       if (!(pageToken = r.nextPageToken)) break;
     }
-    videos.sort((a, b) => (a.published < b.published ? 1 : -1));
-    if (videos.length) out.push({ id: p.id, title: p.snippet.title.trim(), latest: videos[0].published, videos: videos.slice(0, 12) });
+    return videos.sort((a, b) => (a.published < b.published ? 1 : -1));
+  };
+  const out = [];
+  for (const p of lists) {
+    const videos = await playlistVideos(p.id);
+    if (videos.length) out.push({ id: p.id, title: p.snippet.title.trim(), latest: videos[0].published, videos });
   }
   const since = new Date(Date.now() - PLAYLIST_MAX_AGE_DAYS * 864e5).toISOString();
-  return out.filter((p) => PLAYLIST_FIRST.test(p.title) || p.latest >= since)
+  const playlists = out.filter((p) => PLAYLIST_FIRST.test(p.title) || p.latest >= since)
     .sort((a, b) => (PLAYLIST_FIRST.test(b.title) - PLAYLIST_FIRST.test(a.title)) || (a.latest < b.latest ? 1 : -1))
     .slice(0, PLAYLIST_BUTTONS);
+  // "All" = every video on the channel (its uploads list)
+  return { all: await playlistVideos("UU" + channel.slice(2)), playlists };
 }
 
 /* ---------- 3. YouTube lists (RSS) ---------- */
@@ -220,9 +231,12 @@ async function main() {
   const ytKeyLists = process.env.YOUTUBE_API_KEY;
   if (!flag("--no-youtube") && channel && ytKeyLists && (!savedPlaylists.updated || Date.now() - Date.parse(savedPlaylists.updated) > 55 * 60e3)) {
     try {
-      const playlists = await channelPlaylists(channel, ytKeyLists);
-      await save(playlistsFile, json({ updated: new Date().toISOString(), playlists }));
-      log(`YouTube: ${playlists.length} playlists for Watch Live`);
+      const { all, playlists } = await channelPlaylists(channel, ytKeyLists);
+      // One compact file (one line per list), read by the page only when "Show more" is pressed
+      const lines = [`{"updated":${JSON.stringify(new Date().toISOString())},`, `"all":${JSON.stringify(all)},`, `"playlists":[`,
+        playlists.map((p) => JSON.stringify(p)).join(",\n"), `]}`];
+      await save(playlistsFile, lines.join("\n") + "\n");
+      log(`YouTube: ${all.length} videos and ${playlists.length} playlists for Watch Live`);
     } catch (e) { console.warn("[content] YouTube playlists unavailable, kept the saved list:", e.message); }
   }
 

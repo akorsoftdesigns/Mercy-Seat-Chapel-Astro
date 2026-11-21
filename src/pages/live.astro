@@ -37,7 +37,7 @@ import { regions } from "../lib/cms.js"; // sections: live-schedule-note, livest
     </div>
   </section>
 
-  <section class="section">
+  <section class="section section--flush-top">
     <div class="container">
       <div class="section-head section-head--split reveal">
         <div><span class="eyebrow">Replay</span><h2>Recent livestreams</h2></div>
@@ -51,6 +51,9 @@ import { regions } from "../lib/cms.js"; // sections: live-schedule-note, livest
       <div class="grid grid--4" id="livestream-cards" data-per="8">
         <Fragment set:html={regions["recent-livestreams"]} />
       </div>
+      <!-- "Show more": 8 more videos of the chosen button at a time, to the last one (the full lists are in
+           data-source, loaded on the first press); hidden when there are no more (main.js initVideoFilters) -->
+      <div class="text-center" style="margin-top:40px"><button class="btn btn--outline" type="button" data-more="#livestream-cards" data-source="assets/data/youtube-playlists.json" data-fallback="assets/data/youtube-streams.json" hidden>Show more <i data-lucide="chevron-down"></i></button></div>
     </div>
   </section>
 </BaseLayout>

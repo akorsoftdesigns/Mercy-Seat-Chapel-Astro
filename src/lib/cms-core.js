@@ -220,7 +220,9 @@ export function buildCms(snapshot, youtube = {}, today = todayInChurchTz()) {
   if (sermons.length) regions["teaching-series"] = sermons.slice(0, 12).map((v, i) => R.teachingCard(v, i, "MSC Sermons")).join("\n");
   // Watch Live "Recent livestreams": playlist buttons + cards that open on YouTube
   if (streams.length) {
-    const live = R.livestreamFilters(youtube.playlists || [], streams, site?.liveVideoId);
+    // "All" = every channel video once the API key has filled the file; until then the 15 newest livestreams
+    const { all = [], playlists = [] } = youtube.videoLists || {};
+    const live = R.livestreamFilters(playlists, all.length ? all : streams, site?.liveVideoId);
     regions["livestream-tabs"] = live.tabs;
     regions["recent-livestreams"] = live.cards;
   }
