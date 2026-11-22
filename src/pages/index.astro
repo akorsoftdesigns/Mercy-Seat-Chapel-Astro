@@ -166,10 +166,11 @@ import { regions } from "../lib/cms.js"; // dashboard sections: church-schema, h
       <div class="section-head section-head--split reveal">
         <div>
           <span class="eyebrow">Watch</span>
-          <h2>Latest messages</h2>
+          <h2>Latest Messages &amp; Services</h2>
           <p class="muted" style="margin:0">Catch up on recent services and messages from Mercy Seat Chapel.</p>
         </div>
-        <a class="btn btn--outline" href="sermons.html">All Messages <i data-lucide="arrow-right"></i></a>
+        <!-- Opens Watch Live at its "Messages & Services" replay list (id="replay" in live.astro) -->
+        <a class="btn btn--outline" href="live.html#replay">View All <i data-lucide="arrow-right"></i></a>
       </div>
       <!-- data-youtube-feed="6" + data-youtube-source="streams": the list is replaced with the channel's 5 newest live streams (its YouTube "Live" tab, newest first) and the newest is featured. The markup below is only the fallback shown if the feed can't be reached. -->
       <div class="messages reveal" data-playlist data-youtube-feed="5" data-youtube-source="streams">

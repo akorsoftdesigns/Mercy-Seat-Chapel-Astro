@@ -40,7 +40,8 @@ import { regions } from "../lib/cms.js"; // sections: sermon-feature (newest fin
       </div>
       <!-- The newest livestreams from the MSC Sermons YouTube channel (sermonsChannelId in src/data/site.js),
            most recent first. Clicking a thumbnail plays it in the main player above, on this page. -->
-      <!-- The page holds the newest 8 (2 rows of 4 on wide screens); "Show more" adds 8 at a time from
+      <!-- The message already in the main player is left out, so this list starts with the one before it.
+           The page holds the next 8 (2 rows of 4 on wide screens); "Show more" adds 8 at a time from
            assets/data/youtube-sermons.json until every message is shown (main.js initMoreVideos) -->
       <div class="grid grid--4" id="teaching-cards" data-per="8" data-plays-in="#sermon-player">
         <Fragment set:html={regions["teaching-series"]} />

@@ -178,6 +178,23 @@ async function youtubeFeed(channel, streams) {
   }).filter((v) => v.id && v.date).sort((a, b) => (a.published < b.published ? 1 : -1));
 }
 
+/* Scheduled streams that haven't started: the public feeds list them as soon as they are created
+   (Nov 2026: an extra "Sunday Service" stream that never started showed on the homepage). With the
+   API key, one call (1 quota unit, up to 50 IDs) finds which are still "upcoming". Without it: none. */
+async function upcomingIds(ids, key) {
+  const want = [...new Set(ids.filter(Boolean))].slice(0, 50);
+  if (!key || !want.length) return new Set();
+  try {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?${new URLSearchParams({ part: "snippet", id: want.join(","), key })}`).catch(() => null);
+    if (!res?.ok) throw new Error(`YouTube API videos answered ${res ? res.status : "nothing"}`); // (message never includes the key)
+    const { items = [] } = await res.json();
+    return new Set(items.filter((v) => v.snippet?.liveBroadcastContent === "upcoming").map((v) => v.id));
+  } catch (e) {
+    console.warn("[content] Could not check for scheduled streams, lists left as the feed gave them:", e.message);
+    return new Set();
+  }
+}
+
 /* ---------- 4. SITE_SETTINGS in main.js (browser copy of the Site Settings) ---------- */
 function siteJs(v) {
   const val = (x) => (Array.isArray(x) ? `[\n${x.map((o) => `    ${obj(o)}`).join(",\n")}\n  ]` : typeof x === "object" ? obj(x) : JSON.stringify(x));
@@ -241,15 +258,29 @@ async function main() {
   const playlistsFile = path.join(PUBLIC, "assets/data/youtube-playlists.json");
   const savedPlaylists = existsSync(playlistsFile) ? JSON.parse(await readFile(playlistsFile, "utf8")) : { updated: "" };
   const ytKeyLists = process.env.YOUTUBE_API_KEY;
+  let { all = [], playlists = [] } = savedPlaylists, fresh = false;
   if (!flag("--no-youtube") && channel && ytKeyLists && (!savedPlaylists.updated || Date.now() - Date.parse(savedPlaylists.updated) > 55 * 60e3)) {
-    try {
-      const { all, playlists } = await channelPlaylists(channel, ytKeyLists);
-      // One compact file (one line per list), read by the page only when "Show more" is pressed
-      const lines = [`{"updated":${JSON.stringify(new Date().toISOString())},`, `"all":${JSON.stringify(all)},`, `"playlists":[`,
-        playlists.map((p) => JSON.stringify(p)).join(",\n"), `]}`];
-      await save(playlistsFile, lines.join("\n") + "\n");
-      log(`YouTube: ${all.length} videos and ${playlists.length} playlists for Watch Live`);
-    } catch (e) { console.warn("[content] YouTube playlists unavailable, kept the saved list:", e.message); }
+    try { ({ all, playlists } = await channelPlaylists(channel, ytKeyLists)); fresh = true; }
+    catch (e) { console.warn("[content] YouTube playlists unavailable, kept the saved list:", e.message); }
+  }
+  // Leave out scheduled streams that haven't started yet (the public feeds list them as if finished)
+  const upcoming = flag("--no-youtube") ? new Set() : await upcomingIds([...(youtube.uploads || []), ...(youtube.streams || []), ...all.slice(0, 10), ...playlists.flatMap((p) => p.videos.slice(0, 3))].map((v) => v.id), ytKeyLists);
+  if (upcoming.size) {
+    const keep = (list) => list.filter((v) => !upcoming.has(v.id));
+    if (youtube.uploads) await save(path.join(PUBLIC, "assets/data/youtube-uploads.json"), json(keep(youtube.uploads)));
+    if (youtube.streams) await save(path.join(PUBLIC, "assets/data/youtube-streams.json"), json(keep(youtube.streams)));
+    all = keep(all);
+    playlists = playlists.map((p) => ({ ...p, videos: keep(p.videos) })).filter((p) => p.videos.length);
+    log(`YouTube: left out ${upcoming.size} scheduled stream(s) that haven't started`);
+  }
+  if (fresh || upcoming.size) {
+    // One compact file (one line per list), read by the page only when "Show more" is pressed.
+    // "updated" is the time of the last full (hourly) refresh, not of a scheduled-stream clean-up.
+    const updated = fresh ? new Date().toISOString() : savedPlaylists.updated;
+    const lines = [`{"updated":${JSON.stringify(updated)},`, `"all":${JSON.stringify(all)},`, `"playlists":[`,
+      playlists.map((p) => JSON.stringify(p)).join(",\n"), `]}`];
+    await save(playlistsFile, lines.join("\n") + "\n");
+    if (fresh) log(`YouTube: ${all.length} videos and ${playlists.length} playlists for Watch Live`);
   }
 
   // Snapshot for the build (only the pictures/files the content points to)

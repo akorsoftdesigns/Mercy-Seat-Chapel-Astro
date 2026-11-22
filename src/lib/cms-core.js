@@ -218,9 +218,11 @@ export function buildCms(snapshot, youtube = {}, today = todayInChurchTz()) {
   // Sermons page: the MSC Sermons livestreams (newest first), and above them one big player with the
   // newest finished message from that same list (never a live or scheduled stream)
   // The page holds the newest 8; its "Show more" adds 8 at a time from youtube-sermons.json (main.js initMoreVideos)
-  if (sermons.length) regions["teaching-series"] = sermons.slice(0, 8).map((v, i) => R.teachingCard(v, i, "MSC Sermons")).join("\n");
   const featured = sermons.find((v) => !v.live);
   if (featured) regions["sermon-feature"] = R.sermonFeature(featured, "MSC Sermons");
+  // The list below the player leaves out the message already in the player
+  const rest = sermons.filter((v) => v !== featured);
+  if (rest.length) regions["teaching-series"] = rest.slice(0, 8).map((v, i) => R.teachingCard(v, i, "MSC Sermons")).join("\n");
   // Watch Live "Recent livestreams": playlist buttons + cards that open on YouTube
   if (streams.length) {
     // "All" = every channel video once the API key has filled the file; until then the 15 newest livestreams
