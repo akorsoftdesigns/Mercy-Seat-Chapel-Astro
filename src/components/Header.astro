@@ -48,7 +48,7 @@ const isActive = (item: any) => item.children?.some((c: any) => isCurrent(c.href
       <div class="m-group"><button type="button" aria-expanded="false">{item.label}<i data-lucide="plus"></i></button>
         <div class="m-sub"><div>{item.children.map((c) => <a href={c.href}>{c.label}</a>)}</div></div></div>
     ))}
-    <div class="m-group"><button class="m-search" type="button" aria-controls="site-search" aria-expanded="false">Search<i data-lucide="search"></i></button></div>
+    <div class="m-group m-group--search"><form class="m-searchbar" role="search"><input type="search" placeholder="Search" aria-label="Search the site" autocomplete="off" enterkeyhint="search"><button type="submit" aria-label="Search" aria-controls="site-search"><i data-lucide="search"></i></button></form></div>
   </nav>
   <div class="mobile-menu__cta">
     <a class="btn btn--primary" href="plan-a-visit.html">Plan Your Visit</a>

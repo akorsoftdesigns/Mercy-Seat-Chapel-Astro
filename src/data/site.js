@@ -17,7 +17,10 @@ export const SITE_FIXED = {
   // "MSC Sermons" YouTube channel: its livestreams fill "Teaching series" on the Sermons page
   // (scripts/fetch-content.mjs reads the ID from here). The link is for "See all sermons on YouTube".
   sermonsChannelId: "UCbp8b4Zy37UxfPlrLodUmqQ",
-  sermonsChannelUrl: "https://www.youtube.com/@mscsermons/streams"
+  sermonsChannelUrl: "https://www.youtube.com/@mscsermons/streams",
+  // The church's position on Google Maps (latitude,longitude), where the map "zoom in" on the Contact and
+  // Plan a Visit pages heads (public/assets/js/main.js initMapZoom). Update it with the address if the church moves.
+  mapCenter: "39.1448497,-77.1731099"
 };
 
 // Fallback contact details, service times and links (the live values are edited in the dashboard: Site Settings)

@@ -1,7 +1,7 @@
 ---
 /* Watch Live. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { regions } from "../lib/cms.js"; // sections: live-schedule-note, livestream-tabs, recent-livestreams
+import { regions } from "../lib/cms.js"; // sections: livestream-tabs, recent-livestreams
 ---
 <BaseLayout
   page="live.html"
@@ -29,8 +29,7 @@ import { regions } from "../lib/cms.js"; // sections: live-schedule-note, livest
       <div class="btn-row reveal" style="margin-top:20px"><a class="btn btn--outline" data-site="youtube-live" data-brand="youtube" href="#" target="_blank" rel="noopener">Watch on YouTube</a></div>
       <div class="notice reveal" style="margin-top:20px"><i data-lucide="calendar-clock"></i>
         <div class="notice__text">
-          <!-- When we stream: managed in the dashboard (Homepage → Watch Live page: “When we stream” list) -->
-          <Fragment set:html={regions["live-schedule-note"]} />
+          <!-- The "When we stream" line was removed (Nov 2026); to restore it, add a Fragment with set:html of regions["live-schedule-note"] here -->
           <p>Press play to join the current livestream. If we’re not live right now, the player shows our most recent livestream. More past services are below.</p>
         </div>
       </div>
