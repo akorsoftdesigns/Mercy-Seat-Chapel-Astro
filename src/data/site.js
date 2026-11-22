@@ -72,8 +72,8 @@ export const NAV = [
     { label: "Gallery", href: "gallery.html" }
   ]},
   { label: "Sermons", href: "sermons.html", children: [
-    { label: "Latest Messages", href: "sermons.html" },
-    { label: "Watch Live", href: "live.html" }
+    { label: "Watch Live", href: "live.html" },
+    { label: "Latest Messages", href: "sermons.html" }
   ]},
   { label: "Contact", href: "contact.html" }
 ];

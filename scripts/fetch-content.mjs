@@ -90,12 +90,24 @@ async function channelStreams(channel, key) {
         if (!res?.ok) throw new Error(`YouTube API ${endpoint} answered ${res ? res.status : "nothing"}`); // (message never includes the key)
         return res.json();
       };
-      const list = await api("playlistItems", { part: "contentDetails", playlistId: "UULV" + channel.slice(2), maxResults: "25" });
-      const ids = (list.items || []).map((i) => i.contentDetails?.videoId).filter(Boolean);
+      // Every livestream on the channel (50 per page, up to 20 pages), so the Sermons page's
+      // "Show more" can go all the way to the first one
+      const ids = [];
+      let pageToken = "";
+      for (let page = 0; page < 20; page++) {
+        const list = await api("playlistItems", { part: "contentDetails", playlistId: "UULV" + channel.slice(2), maxResults: "50", ...(pageToken && { pageToken }) });
+        ids.push(...(list.items || []).map((i) => i.contentDetails?.videoId).filter(Boolean));
+        if (!(pageToken = list.nextPageToken)) break;
+      }
       if (!ids.length) return [];
-      const { items = [] } = await api("videos", { part: "snippet,liveStreamingDetails", id: ids.join(",") });
+      const items = [];
+      for (let i = 0; i < ids.length; i += 50) items.push(...((await api("videos", { part: "snippet,liveStreamingDetails", id: ids.slice(i, i + 50).join(",") })).items || []));
       return items.filter((v) => v.snippet?.liveBroadcastContent !== "upcoming")
-        .map((v) => { const published = v.liveStreamingDetails?.actualStartTime || v.snippet.publishedAt; return { id: v.id, title: v.snippet.title, published, date: churchDay(published) }; })
+        .map((v) => {
+          const published = v.liveStreamingDetails?.actualStartTime || v.snippet.publishedAt;
+          // live: still streaming (kept in the list, but never chosen for the Sermons page's main player)
+          return { id: v.id, title: v.snippet.title, published, date: churchDay(published), ...(v.snippet.liveBroadcastContent === "live" && { live: true }) };
+        })
         .sort((a, b) => (a.published < b.published ? 1 : -1));
     } catch (e) {
       console.warn("[content] YouTube API unavailable for channel streams, using the public feed:", e.message);

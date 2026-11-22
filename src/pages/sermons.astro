@@ -2,7 +2,7 @@
 /* Latest Messages. Page text is plain HTML below; the shared head, header and footer come from BaseLayout. */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PageHero from "../components/PageHero.astro";
-import { regions } from "../lib/cms.js"; // sections: sermon-feature (newest video), teaching-series (MSC Sermons livestreams)
+import { regions } from "../lib/cms.js"; // sections: sermon-feature (newest finished MSC Sermons message), teaching-series (MSC Sermons livestreams)
 ---
 <BaseLayout
   page="sermons.html"
@@ -20,12 +20,12 @@ import { regions } from "../lib/cms.js"; // sections: sermon-feature (newest vid
 
   <section class="section">
     <div class="container">
-      <div class="section-head section-head--split reveal">
-        <div><span class="eyebrow">Featured</span><h2>Latest message</h2></div>
-        <a class="btn btn--outline" data-site="youtube" href="#" target="_blank" rel="noopener">Subscribe on YouTube <i data-lucide="arrow-up-right"></i></a>
+      <!-- No buttons on this page lead to YouTube (the "Subscribe on YouTube" button was removed, Nov 2026) -->
+      <div class="section-head section-head--left reveal">
+        <span class="eyebrow">Featured</span><h2>Latest message</h2>
       </div>
-      <!-- Main player: the church channel's newest video, played on this page. Any Teaching series
-           thumbnail below also plays here (data-plays-in="#sermon-player"). -->
+      <!-- Main player: the newest finished message from the Teaching series list below (never a live or
+           scheduled stream). Any Teaching series thumbnail below also plays here (data-plays-in="#sermon-player"). -->
       <div class="video-feature reveal" id="sermon-player">
         <Fragment set:html={regions["sermon-feature"]} />
       </div>
@@ -40,11 +40,13 @@ import { regions } from "../lib/cms.js"; // sections: sermon-feature (newest vid
       </div>
       <!-- The newest livestreams from the MSC Sermons YouTube channel (sermonsChannelId in src/data/site.js),
            most recent first. Clicking a thumbnail plays it in the main player above, on this page. -->
-      <!-- 12 cards = 3 rows of 4 on wide screens (2 across on tablets, 1 on phones) -->
-      <div class="grid grid--4" data-plays-in="#sermon-player">
+      <!-- The page holds the newest 8 (2 rows of 4 on wide screens); "Show more" adds 8 at a time from
+           assets/data/youtube-sermons.json until every message is shown (main.js initMoreVideos) -->
+      <div class="grid grid--4" id="teaching-cards" data-per="8" data-plays-in="#sermon-player">
         <Fragment set:html={regions["teaching-series"]} />
       </div>
-      <div class="text-center" style="margin-top:40px"><a class="btn btn--secondary" data-site="sermons-channel" href="#" target="_blank" rel="noopener">See all services <i data-lucide="arrow-up-right"></i></a></div>
+      <!-- "See all services" (to YouTube) was replaced by this button, Nov 2026 -->
+      <div class="text-center" style="margin-top:40px"><button class="btn btn--outline" type="button" data-more="#teaching-cards" data-source="assets/data/youtube-sermons.json" data-name="MSC Sermons" hidden>Show more <i data-lucide="chevron-down"></i></button></div>
     </div>
   </section>
 
